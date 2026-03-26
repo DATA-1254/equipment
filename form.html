@@ -1,0 +1,126 @@
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxK_M2tVN3DiW8sBbPatkfFpq-lRkpZ8SSV_QGJirzApkZgofB8Flj0XzV0GDdiY4rwvQ/exec";
+
+// ================== preview ==================
+document.getElementById("image").addEventListener("change", function() {
+  const file = this.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const preview = document.getElementById("preview");
+    preview.src = e.target.result;
+    preview.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+});
+
+// ================== LOAD CATEGORY ==================
+window.onload = function() {
+  fetch(API_URL + "?action=getData")
+    .then(res => res.json())
+    .then(data => {
+      const select = document.getElementById("category");
+      select.innerHTML = "";
+
+      const categories = [...new Set(data.map(i => i.category || "อื่นๆ"))];
+
+      categories.forEach(cat => {
+        const option = document.createElement("option");
+        option.value = cat;
+        option.textContent = cat;
+        select.appendChild(option);
+      });
+    });
+};
+
+// ================== SUBMIT ==================
+document.getElementById("form").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const saving = document.getElementById("saving");
+  saving.style.display = "flex";
+
+  const name = document.getElementById("name").value;
+  const file = document.getElementById("image").files[0];
+  const newcategory = document.getElementById("newcategory").value;
+  const qty = document.getElementById("qty").value;
+  const section = document.getElementById("section").value;
+  const remark = document.getElementById("remark").value;
+
+  const category = newcategory || document.getElementById("category").value;
+
+  // 🔥 ฟังก์ชัน redirect
+  function goBack() {
+    setTimeout(() => {
+      window.location.href = "index.html"; // 🔥 กลับหน้า index
+    }, 800);
+  }
+
+  if (file) {
+    const reader = new FileReader();
+
+    reader.onload = function() {
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "addItem",
+          name: name,
+          imageData: reader.result,
+          imageName: file.name,
+          category: category,
+          qty: qty,
+          section: section,
+          remark: remark
+        })
+      })
+      .then(res => res.json())
+      .then(() => {
+        saving.style.display = "none";
+        showToast("บันทึกสำเร็จ");
+        goBack(); // 🔥 เด้งกลับ
+      })
+      .catch(err => {
+        saving.style.display = "none";
+        alert("Error: " + err);
+      });
+    };
+
+    reader.readAsDataURL(file);
+
+  } else {
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "addItem",
+        name: name,
+        imageData: null,
+        imageName: null,
+        category: category,
+        qty: qty,
+        section: section,
+        remark: remark
+      })
+    })
+    .then(res => res.json())
+    .then(() => {
+      saving.style.display = "none";
+      showToast("บันทึกสำเร็จ");
+      goBack(); // 🔥 เด้งกลับ
+    });
+  }
+});
+
+// ================== TOAST ==================
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.classList.add("toast-message");
+  toast.innerText = "✅ " + message;
+
+  document.getElementById("toast").appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
+</script>
