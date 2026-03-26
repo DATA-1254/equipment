@@ -1,0 +1,174 @@
+<script>
+let editRow = null;
+
+const mode = "<?= mode ?>";
+const id = "<?= id ?>";
+
+// ================== preview ==================
+document.getElementById("image").addEventListener("change", function() {
+  const file = this.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const preview = document.getElementById("preview");
+    preview.src = e.target.result;
+    preview.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+});
+
+// ================== LOAD ==================
+window.onload = function() {
+
+  google.script.run.withSuccessHandler(function(categories){
+
+    const select = document.getElementById("category");
+    select.innerHTML = "";
+
+    categories.forEach(function(cat){
+      const option = document.createElement("option");
+      option.value = cat;
+      option.textContent = cat;
+      select.appendChild(option);
+    });
+
+    // 🔥 edit mode
+    if (mode === "edit" && id) {
+
+      editRow = id; // ✅ ใช้ UUID ไม่ต้อง parseInt
+
+      document.getElementById("form-title").innerText = "แก้ไขข้อมูล";
+
+      google.script.run.withSuccessHandler(function(data){
+
+        document.getElementById("name").value = data[0] || "";
+        document.getElementById("qty").value = data[3] || "";
+        document.getElementById("section").value = data[4] || "";
+        document.getElementById("remark").value = data[5] || "";
+        select.value = data[2] || "";
+
+        if (data[1]) {
+          const preview = document.getElementById("preview");
+          preview.src = data[1];
+          preview.style.display = "block";
+        }
+
+      }).getItemById(id);
+    }
+
+  }).getCategories();
+};
+
+// ================== SUBMIT ==================
+document.getElementById("form").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const saving = document.getElementById("saving");
+  saving.style.display = "flex";
+
+  const name = document.getElementById("name").value;
+  const file = document.getElementById("image").files[0];
+  const newcategory = document.getElementById("newcategory").value;
+  const qty = document.getElementById("qty").value;
+  const section = document.getElementById("section").value;
+  const remark = document.getElementById("remark").value;
+
+  const category = newcategory || document.getElementById("category").value;
+
+  // ================== EDIT ==================
+  if (mode === "edit") {
+
+    if (file) {
+      // 🔥 มีรูปใหม่
+      const reader = new FileReader();
+
+      reader.onload = function() {
+
+        google.script.run
+          .withSuccessHandler(function(newImageUrl){
+
+            google.script.run
+              .withSuccessHandler(function(){
+                saving.style.display = "none";
+                showToast("แก้ไขสำเร็จ", "success");
+              })
+              .updateItem(editRow, name, newImageUrl, category, qty, section, remark);
+
+          })
+          .uploadImageOnly(reader.result, file.name);
+
+      };
+
+      reader.readAsDataURL(file);
+
+    } else {
+      // 🔥 ไม่มีรูปใหม่
+      google.script.run
+        .withSuccessHandler(function(){
+          saving.style.display = "none";
+          showToast("แก้ไขสำเร็จ", "success");
+        })
+        .updateItem(editRow, name, null, category, qty, section, remark);
+    }
+
+  } 
+  // ================== ADD ==================
+  else {
+
+    if (file) {
+      // 🔥 มีรูป
+      const reader = new FileReader();
+
+      reader.onload = function() {
+
+        google.script.run
+          .withSuccessHandler(function(){
+            saving.style.display = "none";
+            showToast("บันทึกสำเร็จ", "success");
+
+            document.getElementById("form").reset();
+            document.getElementById("preview").style.display = "none";
+          })
+          .withFailureHandler(function(err){
+            saving.style.display = "none";
+            alert("Error: " + err.message);
+          })
+          .uploadFile(name, reader.result, file.name, category, qty, section, remark);
+
+      };
+
+      reader.readAsDataURL(file);
+
+    } else {
+      // 🔥 ไม่มีรูปก็เพิ่มได้
+      google.script.run
+        .withSuccessHandler(function(){
+          saving.style.display = "none";
+          showToast("บันทึกสำเร็จ (ไม่มีรูป)", "success");
+
+          document.getElementById("form").reset();
+          document.getElementById("preview").style.display = "none";
+        })
+        .uploadFile(name, null, null, category, qty, section, remark);
+    }
+
+  }
+
+});
+
+// ================== TOAST ==================
+function showToast(message, type="success") {
+  const toast = document.createElement("div");
+  toast.classList.add("toast-message");
+  toast.classList.add(type === "success" ? "toast-success" : "toast-error");
+
+  toast.innerText = message;
+  document.getElementById("toast").appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.animation = "fadeOut 0.4s forwards";
+    setTimeout(() => toast.remove(), 400);
+  }, 3000);
+}
+</script>
