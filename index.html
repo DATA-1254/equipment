@@ -468,9 +468,9 @@ function updateQty(amount) {
 
   document.getElementById('orderQty').innerText = currentQty;
 }
- function goAdd() {
-  window.location.href = API_URL + "?page=form&mode=add";
-}     
+function goAdd() {
+  window.location.href = API_URL + "?page=form";
+}
    function closeModal() {
   const modal = document.getElementById('detailModal');
   const modalContent = modal.querySelector('div');
