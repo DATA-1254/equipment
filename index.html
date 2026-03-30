@@ -1,622 +1,279 @@
 <!DOCTYPE html> 
 <html>
-  <head>
+<head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KPC App | อุปกรณ์สำรองหอ D</title>
     <base target="_top">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-      body { 
-        background-color: #f3f4f6; 
-        display: flex; 
-        justify-content: center; 
-        margin: 0; 
-        padding: 0;
-        overflow: hidden; 
-      }
-      
-      .iphone-15-container {
-        width: 100vw; 
-        max-width: 500px; 
-        height: 100vh; 
-        background: white;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column;
-        position: relative;
-      }
-
-      header { flex-shrink: 0; }
-
-      .category-scroll {
-        flex-shrink: 0;
-        display: flex;
-        overflow-x: auto;
-        white-space: nowrap;
-        padding: 10px;
-        gap: 8px;
-        scrollbar-width: none;
-      }
-      .category-scroll::-webkit-scrollbar { display: none; }
-
-      .content-area { 
-        flex-grow: 1; 
-        overflow-y: auto; 
-        padding: 12px;
-        display: flex; /* เพิ่มบรรทัดนี้ */
-        flex-direction: column; /* เพิ่มบรรทัดนี้ */
-        padding-bottom: 60px; /* เว้นที่ไว้ให้ Footer */        
-      }
-
-
-      /* ตรวจสอบส่วน #content ให้มีความกว้างเต็มพื้นที่ */
-      #content {
-        width: 100%;
-      }
-
-      .card-img {
-        width: 100%; 
-        object-fit: cover; 
-        display: block; 
-      }
-
-      /* คอนเทนเนอร์ของรูปภาพเพื่อให้ข้อความอ้างอิงตำแหน่งได้ */
-      .image-container {
-        position: relative;
-        width: 100%;
-      }
-
-      /* สไตล์ของป้าย "สำรอง" */
-      .badge-reserve {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        background-color: rgba(107, 114, 128, 0.85);
-        color: white;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        z-index: 10;
-        pointer-events: none; /* เพื่อให้ยังคลิกรูปได้ปกติ */
-      }
-
-      /* ปรับขนาดฟอนต์สำหรับโหมด 3 คอลัมน์ให้เล็กลงอีกนิด */
-      .grid-view .badge-reserve {
-        font-size: 8px;
-        padding: 1px 4px;
-      }
-      
-      /* Layout Styles */
-      .grid-view { 
-        display: grid; 
-        grid-template-columns: repeat(3, 1fr); /* เปลี่ยนจาก 2 เป็น 3 คอลัมน์ */
-        gap: 8px; /* ลดช่องว่างระหว่าง Card เล็กน้อย */
-      }
-      .grid-view .title {
-        font-size: 0.7rem; 
-      }
-            .grid-view .desc {
-        font-size: 0.6rem;
-      }
-      .grid-view .card-img { aspect-ratio: 4 / 3; }
-      
-      .list-view { 
-        display: grid; 
-        grid-template-columns: 1fr; 
-        gap: 15px; 
-      }
-      .list-view .card-img { aspect-ratio: 16 / 9; }
-      .list-view .title { font-size: 1rem; }
-      .list-view .desc { font-size: 0.875rem; }
-
-      .fab {
-  position: fixed; /* เปลี่ยนเป็น fixed */
-  bottom: 80px;    /* ขยับขึ้นมาเหนือ footer */
-  right: 20px;
-  width: 56px;
-  height: 56px;
-  background-color: #2563eb; 
-  color: white;
-  border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  z-index: 100; /* ให้อยู่เหนือเนื้อหา */
-  border: none;
-}
-
-.add-float-btn {
-  position: fixed; /* เปลี่ยนเป็น fixed */
-  bottom: 80px;
-  left: 20px; 
-  background: #27ae60;
-  color: white;
-  border: none;
-  padding: 14px 22px;
-  border-radius: 50px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-  z-index: 100;
-}
-
-.add-float-btn:hover {
-  background: #1e8449;
-  transform: scale(1.05);
-}
-      footer {
-        flex-shrink: 0;
-        background-color: #2563eb; 
-        color: white;
-        text-align: center;
-        /*padding: 12px;*/
-        padding: 6px;
-        font-size: 0.75rem;
-        font-weight: 300;
-      }
-
-      /* เพิ่มในส่วน <style> */
-#mainFooter {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 40; /* ให้อยู่เหนือเนื้อหาแต่ใต้ Modal */
-  height: 50px;
-}
-
-     .category-btn {
-        padding: 4px 15px;
-        border-radius: 4px;
-        transition: all 0.2s;
-        border: 1px solid #e5e7eb;
-      } 
-      .btn-active { background-color: #2563eb; color: white; border-color: #2563eb; }
-      .btn-inactive { background-color: #d1d5db; color: #1f2937; }
-      
-/* *** เพิ่ม CSS Animation ในส่วน <style> *** */
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-/* ปรับแต่งรายละเอียด Modal เพิ่มเติม */
-#modalDesc {
-  max-height: 40vh; /* จำกัดความสูงของรายละเอียดไม่ให้ล้นจอ */
-  overflow-y: auto; /* ให้เลื่อนดูรายละเอียดได้ถ้ามันยาว */
-  scrollbar-width: thin; /* สำหรับ Firefox */
-}
-
- #toast {
-    transform: translate(-50%, -20px);
-  }
-  #toast.opacity-100 {
-    transform: translate(-50%, 0);
-  }
-      
-/* ปรับแต่ง scrollbar ของรายการสรุป */
-#summaryList::-webkit-scrollbar {
-  width: 4px;
-}
-#summaryList::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 10px;
-}
-      
+        body { background-color: #f3f4f6; display: flex; justify-content: center; margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; }
+        .iphone-15-container { width: 100vw; max-width: 500px; height: 100vh; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; position: relative; }
+        header { flex-shrink: 0; }
+        .category-scroll { flex-shrink: 0; display: flex; overflow-x: auto; white-space: nowrap; padding: 10px; gap: 8px; scrollbar-width: none; background: #fff; border-bottom: 1px solid #f3f4f6; }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .content-area { flex-grow: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; padding-bottom: 100px; /* เว้นที่ให้ปุ่มลอย */ }
+        
+        .fab { position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; background-color: #2563eb; color: white; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 24px; z-index: 100; border: none; }
+        .add-float-btn { position: fixed; bottom: 80px; left: 20px; background: #27ae60; color: white; border: none; padding: 14px 22px; border-radius: 50px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,0.2); z-index: 100; transition: 0.2s; }
+        
+        .grid-view { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .list-view { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .image-container { position: relative; width: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; }
+        .badge-reserve { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: white; font-size: 9px; padding: 2px; text-align: center; }
+        
+        .category-btn { padding: 6px 15px; border-radius: 50px; font-size: 13px; transition: all 0.2s; border: 1px solid #e5e7eb; } 
+        .btn-active { background-color: #2563eb; color: white; border-color: #2563eb; font-weight: bold; }
+        .btn-inactive { background-color: #f3f4f6; color: #4b5563; }
+        
+        footer { position: absolute; bottom: 0; left: 0; right: 0; background-color: #2563eb; color: white; text-align: center; padding: 10px; font-size: 0.75rem; z-index: 40; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
     </style>
-  </head>
-  <body>
+</head>
+<body>
 
     <div class="iphone-15-container">
-      <header class="p-3 bg-blue-600 text-white text-center font-bold text-lg">
-        ทดสอบ!!รายการอุปกรณ์สำรองหอ D
-      </header>
+        <header class="p-4 bg-blue-600 text-white text-center font-bold text-lg shadow-md">
+            รายการอุปกรณ์สำรองหอ D
+        </header>
 
-      <div class="category-scroll" id="categoryBar"></div>
-      <div class="content-area" id="contentContainer">
-        <div class="grid-view" id="content">
-          <div id="loading" class="col-span-full flex flex-col items-center justify-center py-20 w-full">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p class="mt-4 text-gray-500 text-sm font-medium">กำลังโหลดข้อมูล...</p>
-          </div>
-        </div>
-      <button class="fab" id="viewSwitcher" title="สลับมุมมอง">
-          <i class="fas fa-list-ul"></i>
-      </button>
-      <button class="add-float-btn" onclick="goAdd()">
-  + เพิ่มข้อมูล
-</button>
- <!-- 🔥 Toast -->
-  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg opacity-0 pointer-events-none transition-all duration-300 z-50">
-    ✅ บันทึกข้อมูลเรียบร้อยแล้ว
-  </div>
-<footer class="bg-blue-600 text-white text-center">
-  ระบบเบิกอุปกรณ์คอม
-</footer>
-    <div id="detailModal" onclick="checkClose(event)" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden  transition-opacity duration-300">
-      <div onclick="event.stopPropagation()" class="bg-white rounded-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto shadow-2xl relative transform scale-95 transition-transform duration-300">
-
-        <button onclick="closeModal()" class="absolute top-4 right-4 z-10 bg-white/70 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center text-gray-700">
-          <i class="fas fa-times"></i>
-        </button>
-
-        <div class="relative">
-          <img id="modalImg" src="" class="w-full h-64 object-cover rounded-t-2xl">
-          <!--<div class="badge-reserve">สำรอง</div>-->
-        </div>
-
-
-        <div class="p-6">
-          <h2 id="modalTitle" class="font-bold text-2xl text-gray-900"></h2>
-          <div id="modalDesc" class="text-sm text-gray-700 leading-relaxed mt-4"></div>
-
-          <hr class="my-6 border-gray-100">
-
-          <div class="mb-2 text-sm text-gray-500">
-  คงเหลือ: <span id="stockQty" class="font-bold text-blue-600">0</span> ชิ้น
-</div>
-<div class="flex items-center justify-between mb-6">
-            <span class="font-bold text-gray-800">จำนวน</span>
-            <div class="flex items-center border-2 border-gray-100 rounded-xl p-1 bg-gray-50">
-              <button onclick="updateQty(-1)" class="w-10 h-10 flex items-center justify-center bg-white rounded-lg shadow-sm text-blue-600">
-                <i class="fas fa-minus text-xs"></i>
-              </button>
-              <span id="orderQty" class="w-12 text-center font-bold text-lg text-gray-800">1</span>
-              <button onclick="updateQty(1)" class="w-10 h-10 flex items-center justify-center bg-white rounded-lg shadow-sm text-blue-600">
-                <i class="fas fa-plus text-xs"></i>
-              </button>
+        <div class="category-scroll" id="categoryBar"></div>
+        
+        <div class="content-area">
+            <div id="content" class="grid-view">
+                <div id="loading" class="col-span-full flex flex-col items-center justify-center py-20 w-full">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    <p class="mt-4 text-gray-500 text-sm font-medium">กำลังโหลดข้อมูล...</p>
+                </div>
             </div>
-          </div>
-         <div class="flex gap-3">
-  <!-- 🔴 นำออก -->
-  <button id="orderBtn" onclick="submitOrder()" 
-    class="w-1/2 bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg">
-    <i class="fas fa-minus"></i>
-    นำออก
-  </button>
-   <!-- 🔴 ลบรายการ -->
-<div id="deleteContainer" class="mt-4 hidden"> 
-  <button id="deleteBtn" onclick="confirmDelete()" 
-    class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-2xl hover:bg-red-100 transition flex items-center justify-center gap-2">
-    <i class="fas fa-trash-alt"></i> ลบรายการนี้ออกจากระบบ
-  </button>
-  <p class="text-[10px] text-red-400 text-center mt-1">* ลบได้เฉพาะเมื่อจำนวนคงเหลือเป็น 0 เท่านั้น</p>
-</div>
- <!-- 🔴 ปุ่มลบราย -->
-           <div id="deleteConfirmModal" class="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 hidden">
-  <div class="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl text-center animate-fadeIn">
-    <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-      <i class="fas fa-exclamation-triangle text-2xl"></i>
+        </div>
+
+        <footer>ระบบบริหารจัดการอุปกรณ์สำรอง</footer>
     </div>
-    <h3 class="text-lg font-bold text-gray-900 mb-2">ยืนยันการลบ?</h3>
-    <p class="text-sm text-gray-500 mb-6">คุณกำลังจะลบรายการ <br><span id="deleteItemName" class="font-bold text-gray-800"></span><br> ข้อมูลนี้จะหายไปจากระบบทันที</p>
-    
-    <div class="flex gap-3">
-      <button onclick="closeDeleteModal()" class="flex-1 py-3 self-center text-gray-500 font-medium">ยกเลิก</button>
-      <button id="btnRealDelete" onclick="executeDelete()" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-200">ลบเลย</button>
+
+    <button class="fab" id="viewSwitcher"><i class="fas fa-list-ul"></i></button>
+    <button class="add-float-btn" onclick="goAdd()"><i class="fas fa-plus"></i> เพิ่มข้อมูล</button>
+
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-xl shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-[100]">
+        ✅ บันทึกข้อมูลเรียบร้อยแล้ว
     </div>
-  </div>
-</div>
-  <!-- 🟢 เพิ่มเข้า -->
-  <button onclick="addStock()" 
-    class="w-1/2 bg-green-600 text-white font-bold py-4 rounded-2xl shadow-lg">
-    <i class="fas fa-plus"></i>
-    เพิ่มเข้า
-  </button>
-</div>
-      </div>
-    </div>    
-<!---->    
+
+    <div id="detailModal" onclick="checkClose(event)" class="fixed inset-0 bg-black/80 z-[150] flex items-center justify-center p-4 hidden transition-opacity duration-300">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-3xl w-full max-w-sm max-h-[90vh] overflow-hidden shadow-2xl relative animate-fadeIn">
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-20 bg-white/80 rounded-full w-8 h-8 flex items-center justify-center shadow-md"><i class="fas fa-times"></i></button>
+            <img id="modalImg" src="" class="w-full h-60 object-cover">
+            <div class="p-6">
+                <h2 id="modalTitle" class="font-bold text-2xl text-gray-900"></h2>
+                <div id="modalDesc" class="text-sm text-gray-600 mt-2 mb-4"></div>
+                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl mb-6">
+                    <div>
+                        <span class="text-xs text-gray-500 block">คงเหลือ</span>
+                        <span id="stockQty" class="text-xl font-bold text-blue-600">0</span> <span class="text-xs text-gray-500">ชิ้น</span>
+                    </div>
+                    <div class="flex items-center gap-3 bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+                        <button onclick="updateQty(-1)" class="w-8 h-8 rounded-lg bg-gray-50 text-blue-600"><i class="fas fa-minus text-xs"></i></button>
+                        <span id="orderQty" class="w-8 text-center font-bold">1</span>
+                        <button onclick="updateQty(1)" class="w-8 h-8 rounded-lg bg-gray-50 text-blue-600"><i class="fas fa-plus text-xs"></i></button>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button id="orderBtn" onclick="submitOrder()" class="flex-1 bg-blue-600 text-white font-bold py-4 rounded-2xl">นำออก</button>
+                    <button onclick="addStock()" class="flex-1 bg-green-600 text-white font-bold py-4 rounded-2xl">เพิ่มเข้า</button>
+                </div>
+
+                <div id="deleteContainer" class="mt-4 hidden border-t pt-4">
+                    <button id="deleteBtn" onclick="confirmDelete()" class="w-full text-red-500 font-bold py-2 flex items-center justify-center gap-2"><i class="fas fa-trash-alt"></i> ลบรายการนี้</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteConfirmModal" class="fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center">
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-exclamation-triangle text-2xl"></i></div>
+            <h3 class="font-bold text-lg">ยืนยันการลบ?</h3>
+            <p class="text-sm text-gray-500 my-2" id="deleteItemName"></p>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeDeleteModal()" class="flex-1 text-gray-500">ยกเลิก</button>
+                <button id="btnRealDelete" onclick="executeDelete()" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold">ลบเลย</button>
+            </div>
+        </div>
+    </div>
+
 <script>
-  
 let data = [];
 let currentFilter = "All";
 let currentView = 'grid'; 
 let currentQty = 1;
-
-const container = document.getElementById('content');
-const categoryBar = document.getElementById('categoryBar');
-const switcherBtn = document.getElementById('viewSwitcher');
-
-const API_URL = "https://script.google.com/macros/s/AKfycbxK_M2tVN3DiW8sBbPatkfFpq-lRkpZ8SSV_QGJirzApkZgofB8Flj0XzV0GDdiY4rwvQ/exec";
-// ฟังก์ชันสำหรับแปลงลิงก์ Google Drive ให้แสดงผลได้แน่นอน
-function getDriveImageUrl(url) {
-  if (!url || url.includes('placehold.co')) return url;
-  
-  // ค้นหา File ID จาก URL รูปแบบต่างๆ ของ Google Drive
-  const match = url.match(/[-\w]{25,}/);
-  if (match && url.includes('drive.google.com')) {
-    const fileId = match[0];
-    // ใช้รูปแบบ thumbnail จะโหลดเร็วและไม่ติดปัญหาความปลอดภัย (sz=w1000 คือขนาดความกว้าง)
-    return `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`;
-  }
-  return url;
-}
-// ================== โหลดข้อมูล ==================
-async function loadData() {
-  try {
-    container.innerHTML = `
-      <div class="col-span-full flex flex-col items-center justify-center py-20 w-full">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <p class="mt-4 text-gray-500 text-sm font-medium">กำลังโหลดข้อมูล...</p>
-      </div>
-    `;
-
-    const res = await fetch(API_URL + "?action=getData");
-    const json = await res.json();
-
-    data = json.map(item => ({
-      title: item.name || "-",
-      img: item.img || "https://placehold.co/200x150?text=No+Image",
-      category: item.category || "อื่นๆ",
-      qty: Number(item.qty) || 0,
-      section: item.section || "",
-      desc: item.remark || "",
-      date: item.date || "",
-      id: item.id
-    }));
-
-    const categories = ["All", ...new Set(data.map(i => i.category))];
-renderCategoryButtons(categories);
-// เช็กว่าหมวดหมู่ที่เลือกอยู่เดิม (currentFilter) ยังมีอยู่ในข้อมูลใหม่ไหม
-// ถ้าไม่มี (เช่น เพิ่งลบรายการสุดท้ายของหมวดนั้นไป) ให้กลับไป "All"
-if (!categories.includes(currentFilter)) {
-  currentFilter = "All";
-}
-filterData(currentFilter); // <--- สั่งให้แสดงผลตามหมวดปัจจุบัน
-
-  } catch (error) {
-    console.error(error);
-    container.innerHTML = "<p class='text-center p-4 text-red-500'>โหลดข้อมูลไม่สำเร็จ</p>";
-  }
-}
-
-// ================== หมวด ==================
-function renderCategoryButtons(categories) {
-  categoryBar.innerHTML = ''; 
-  categories.forEach(cat => {
-    const btn = document.createElement('button');
-    btn.innerText = cat;
-    btn.className = `category-btn ${currentFilter === cat ? 'btn-active' : 'btn-inactive'}`;
-    btn.onclick = () => {
-      currentFilter = cat;
-      renderCategoryButtons(categories); 
-      filterData(cat);
-    };
-    categoryBar.appendChild(btn);
-  });
-}
-
-// ================== แสดงข้อมูล ==================
-function filterData(selectedCat) {
-  container.innerHTML = ''; 
-  const filtered = selectedCat === "All" ? data : data.filter(item => item.category === selectedCat);
-
-  if (filtered.length === 0) {
-    container.innerHTML = "<p class='col-span-full text-center p-10 text-gray-500'>ไม่พบรายการ</p>";
-    return;
-  }
-
-  filtered.forEach((item, index) => {
-    const card = document.createElement('div');
-    card.className = "card bg-white border rounded-lg overflow-hidden shadow-sm animate-fadeIn cursor-pointer hover:shadow-md transition";
-
-    const cardDesc = (item.desc || "").split('\n')[0];
-
-    card.innerHTML = `
-      <div class="image-container" onclick="openModal('${item.id}')">
-        <img src="${getDriveImageUrl(item.img)}" 
-     class="card-img"
-     onerror="this.onerror=null;this.src='https://placehold.co/200x150?text=No+Image'">
-        <div class="badge-reserve">${item.category} | ${item.qty}</div>
-      </div>
-      <div class="p-1.5">
-        <h3 class="font-bold text-[11px] truncate">${item.title}</h3>
-        <p class="text-[9px] text-gray-600">${cardDesc}</p>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
-
-// ================== VIEW ==================
-switcherBtn.onclick = () => {
-  currentView = currentView === 'grid' ? 'list' : 'grid';
-  container.className = currentView === 'grid' ? 'grid-view' : 'list-view';
-
-  switcherBtn.innerHTML =
-    currentView === 'grid'
-      ? '<i class="fas fa-list-ul"></i>'
-      : '<i class="fas fa-th-large"></i>';
-};
-
-// ================== MODAL ==================
 let currentItemData = null;
 
+const API_URL = "https://script.google.com/macros/s/AKfycbxK_M2tVN3DiW8sBbPatkfFpq-lRkpZ8SSV_QGJirzApkZgofB8Flj0XzV0GDdiY4rwvQ/exec";
+
+function getDriveImageUrl(url) {
+    if (!url || url.includes('placehold.co')) return url;
+    const match = url.match(/[-\w]{25,}/);
+    if (match && url.includes('drive.google.com')) {
+        return `https://drive.google.com/thumbnail?sz=w1000&id=${match[0]}`;
+    }
+    return url;
+}
+
+async function loadData() {
+    const container = document.getElementById('content');
+    try {
+        const res = await fetch(API_URL + "?action=getData");
+        const json = await res.json();
+        data = json.map(item => ({
+            title: item.name || "-",
+            img: getDriveImageUrl(item.img),
+            category: item.category || "อื่นๆ",
+            qty: Number(item.qty) || 0,
+            desc: item.remark || "",
+            id: item.id
+        }));
+
+        const categories = ["All", ...new Set(data.map(i => i.category))];
+        renderCategoryButtons(categories);
+        if (!categories.includes(currentFilter)) currentFilter = "All";
+        filterData(currentFilter);
+    } catch (error) {
+        container.innerHTML = "<p class='text-center p-10 text-red-500'>โหลดข้อมูลไม่สำเร็จ</p>";
+    }
+}
+
+function renderCategoryButtons(categories) {
+    const categoryBar = document.getElementById('categoryBar');
+    categoryBar.innerHTML = ''; 
+    categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.innerText = cat;
+        btn.className = `category-btn ${currentFilter === cat ? 'btn-active' : 'btn-inactive'}`;
+        btn.onclick = () => { currentFilter = cat; renderCategoryButtons(categories); filterData(cat); };
+        categoryBar.appendChild(btn);
+    });
+}
+
+function filterData(selectedCat) {
+    const container = document.getElementById('content');
+    container.innerHTML = ''; 
+    const filtered = selectedCat === "All" ? data : data.filter(item => item.category === selectedCat);
+    if (filtered.length === 0) { container.innerHTML = "<p class='col-span-full text-center p-10'>ไม่พบรายการ</p>"; return; }
+
+    filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "card bg-white border rounded-xl overflow-hidden shadow-sm animate-fadeIn cursor-pointer";
+        card.onclick = () => openModal(item.id);
+        card.innerHTML = `
+            <div class="image-container">
+                <img src="${item.img}" class="card-img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                <div class="badge-reserve">${item.qty} ชิ้น</div>
+            </div>
+            <div class="p-2">
+                <h3 class="font-bold text-[10px] truncate">${item.title}</h3>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
 function openModal(id) {
-  console.log("CLICK ID:", id);
-  console.log("DATA:", data);
-  const item = data.find(i => String(i.id) === String(id));
-  console.log("FOUND:", item);
-  if (!item) return;
-  // --- ส่วนที่เพิ่มใหม่: เช็กเงื่อนไขการลบ ---
-  const deleteContainer = document.getElementById('deleteContainer');
-  
-  if (item.qty === 0) {
-    // ถ้าของหมด (qty เป็น 0) ให้แสดงส่วนการลบ
-    deleteContainer.classList.remove('hidden');
-  } else {
-    // ถ้ายังมีของเหลือ ให้ซ่อนส่วนการลบไว้
-    deleteContainer.classList.add('hidden');
-  }
-  currentItemData = item;
-  currentQty = 1;
-  
-const modal = document.getElementById('detailModal');
-modal.classList.remove('hidden');
-modal.classList.remove('opacity-0');
-modal.classList.add('opacity-100');
-  
-  document.getElementById('orderQty').innerText = currentQty;
-  document.getElementById('stockQty').innerText = item.qty;
-  document.getElementById('modalImg').src = getDriveImageUrl(item.img);
-  document.getElementById('modalTitle').innerText = item.title;
-  document.getElementById('modalDesc').innerHTML = (item.desc || "").replace(/\n/g, '<br>');
+    const item = data.find(i => String(i.id) === String(id));
+    if (!item) return;
+    currentItemData = item;
+    currentQty = 1;
 
-  const img = document.getElementById('modalImg');
-img.src = getDriveImageUrl(item.img);
-img.onerror = () => {
-  img.src = 'https://placehold.co/400x300?text=No+Image';
-};
-  // 🔥 กันของหมด
-  const orderBtn = document.getElementById('orderBtn');
-  if (item.qty === 0) {
-    orderBtn.disabled = true;
-    orderBtn.innerHTML = "❌ ของหมด";
-    orderBtn.classList.add("bg-gray-400");
-  } else {
-    orderBtn.disabled = false;
-    orderBtn.innerHTML = '<i class="fas fa-minus"></i> นำออก';
-    orderBtn.classList.remove("bg-gray-400");
-  }
+    document.getElementById('orderQty').innerText = currentQty;
+    document.getElementById('stockQty').innerText = item.qty;
+    document.getElementById('modalImg').src = item.img;
+    document.getElementById('modalTitle').innerText = item.title;
+    document.getElementById('modalDesc').innerHTML = (item.desc || "").replace(/\n/g, '<br>');
 
-  document.getElementById('detailModal').classList.remove('hidden');
-}
-function checkClose(e) {
-  if (e.target.id === "detailModal") {
-    closeModal();
-  }
-}
-function closeModal() {
-  const modal = document.getElementById('detailModal');
+    const deleteContainer = document.getElementById('deleteContainer');
+    deleteContainer.classList.toggle('hidden', item.qty !== 0);
 
-  modal.classList.remove('opacity-100');
-  modal.classList.add('opacity-0');
-
-  setTimeout(() => {
-    modal.classList.add('hidden');
-  }, 300); // รอ animation
-}
-
-// ================== จำนวน ==================
-function updateQty(amount) {
-  currentQty += amount;
-
-  if (currentQty < 1) currentQty = 1;
-
-  if (currentItemData && currentQty > currentItemData.qty) {
-    currentQty = currentItemData.qty;
-  }
-
-  document.getElementById('orderQty').innerText = currentQty;
-}
-
-// ================== 🔴 นำออก ==================
-async function submitOrder() {
-  if (!currentItemData) return;
-
-  if (currentItemData.qty === 0) {
-    alert("ของหมด");
-    return;
-  }
-
-  await fetch(`${API_URL}?action=order&id=${currentItemData.id}&qty=${currentQty}`);
-
-  showToast(`นำออก ${currentQty} ชิ้น`);
-  closeModal();
-  loadData();
-}
-
-// ================== 🟢 เพิ่มเข้า ==================
-async function addStock() {
-  if (!currentItemData) return;
-
-  await fetch(`${API_URL}?action=addStock&id=${currentItemData.id}&qty=${currentQty}`);
-
-  showToast(`เพิ่มเข้า ${currentQty} ชิ้น`);
-  closeModal();
-  loadData();
-}
-// ================== 🗑️ ลบรายการ (สำหรับ GitHub Pages) ==================
-// --- ฟังก์ชันเปิด-ปิด Modal สวยๆ ---
-function confirmDelete() {
-  if (!currentItemData) return;
-  document.getElementById('deleteItemName').innerText = currentItemData.title;
-  document.getElementById('deleteConfirmModal').classList.remove('hidden');
-}
-
-function closeDeleteModal() {
-  document.getElementById('deleteConfirmModal').classList.add('hidden');
-}
-
-// --- ฟังก์ชันสั่งลบจริงผ่าน fetch ---
-async function executeDelete() {
-  const btn = document.getElementById('btnRealDelete');
-  const originalText = btn.innerText;
-  
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i>';
-
-  try {
-    // ส่ง Request ไปที่ Google Script (API_URL)
-    const targetUrl = `${API_URL}?action=delete&id=${currentItemData.id}`;
-    
-    const response = await fetch(targetUrl);
-    const result = await response.text();
-
-    if (result.includes("Success")) {
-      showToast("ลบรายการเรียบร้อยแล้ว");
-      closeDeleteModal(); // ปิด Modal ยืนยัน
-      closeModal();       // ปิด Modal รายละเอียดอุปกรณ์
-      loadData();         // รีโหลดหน้าเว็บ
+    const orderBtn = document.getElementById('orderBtn');
+    if (item.qty === 0) {
+        orderBtn.disabled = true;
+        orderBtn.classList.replace("bg-blue-600", "bg-gray-300");
+        orderBtn.innerText = "ของหมด";
     } else {
-      // ถ้า Server ตอบกลับมาแต่ไม่ใช่ Success (เช่น Not Found)
-      throw new Error("Server ตอบกลับว่า: " + result);
+        orderBtn.disabled = false;
+        orderBtn.classList.replace("bg-gray-300", "bg-blue-600");
+        orderBtn.innerText = "นำออก";
     }
 
-  } catch (err) {
-    // แสดง Error ที่เกิดขึ้นจริงให้ผู้ใช้เห็น
-    alert("❌ ลบไม่ได้เพราะ: " + err.message + "\n\nตรวจสอบว่าคุณได้ Update Deployment ใน Google Script หรือยัง?");
-    console.error("Delete Error:", err);
-  } finally {
-    btn.disabled = false;
-    btn.innerText = originalText;
-  }
+    document.getElementById('detailModal').classList.remove('hidden');
 }
-// ================== TOAST ==================
+
+function closeModal() { document.getElementById('detailModal').classList.add('hidden'); }
+function checkClose(e) { if (e.target.id === "detailModal") closeModal(); }
+
+function updateQty(amount) {
+    currentQty += amount;
+    if (currentQty < 1) currentQty = 1;
+    if (currentItemData && currentQty > currentItemData.qty && amount > 0) currentQty = currentItemData.qty;
+    document.getElementById('orderQty').innerText = currentQty;
+}
+
+async function submitOrder() {
+    if (!currentItemData) return;
+    showToast("กำลังดำเนินการ...");
+    await fetch(`${API_URL}?action=order&id=${currentItemData.id}&qty=${currentQty}`);
+    showToast(`นำออก ${currentQty} ชิ้นเรียบร้อย`);
+    closeModal();
+    loadData();
+}
+
+async function addStock() {
+    if (!currentItemData) return;
+    showToast("กำลังดำเนินการ...");
+    await fetch(`${API_URL}?action=addStock&id=${currentItemData.id}&qty=${currentQty}`);
+    showToast(`เพิ่มเข้า ${currentQty} ชิ้นเรียบร้อย`);
+    closeModal();
+    loadData();
+}
+
+function confirmDelete() {
+    document.getElementById('deleteItemName').innerText = currentItemData.title;
+    document.getElementById('deleteConfirmModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() { document.getElementById('deleteConfirmModal').classList.add('hidden'); }
+
+async function executeDelete() {
+    const btn = document.getElementById('btnRealDelete');
+    btn.disabled = true;
+    btn.innerText = "กำลังลบ...";
+    try {
+        const res = await fetch(`${API_URL}?action=delete&id=${currentItemData.id}`);
+        const text = await res.text();
+        if (text.includes("Success")) {
+            showToast("ลบเรียบร้อย");
+            closeDeleteModal(); closeModal(); loadData();
+        } else { alert("ลบไม่สำเร็จ: " + text); }
+    } catch (e) { alert("Error: " + e.message); }
+    finally { btn.disabled = false; btn.innerText = "ลบเลย"; }
+}
+
 function showToast(msg) {
-  const toast = document.getElementById("toast");
-  toast.innerText = "✅ " + msg;
-
-  toast.classList.remove("opacity-0");
-  toast.classList.add("opacity-100");
-
-  setTimeout(() => {
-    toast.classList.remove("opacity-100");
-    toast.classList.add("opacity-0");
-  }, 2000);
+    const toast = document.getElementById("toast");
+    toast.innerText = msg;
+    toast.classList.replace("opacity-0", "opacity-100");
+    setTimeout(() => toast.classList.replace("opacity-100", "opacity-0"), 2500);
 }
 
-// ================== ไปหน้าเพิ่ม ==================
-function goAdd() {
-  // ใช้ window.open แบบ _top เพื่อให้หลุดออกจาก iframe ของ Google Script
-  window.open(API_URL + "?page=form", "_top");
-}
+document.getElementById('viewSwitcher').onclick = () => {
+    currentView = currentView === 'grid' ? 'list' : 'grid';
+    document.getElementById('content').className = currentView === 'grid' ? 'grid-view' : 'list-view';
+};
 
-// ================== START ==================
+function goAdd() { window.open(API_URL + "?page=form", "_top"); }
+
 loadData();
 </script>
-</div>
-  </body>
+</body>
 </html>
