@@ -375,7 +375,7 @@ function filterData(selectedCat) {
     const cardDesc = (item.desc || "").split('\n')[0];
 
     card.innerHTML = `
-      <div class="image-container" onclick="openModal(${index})">
+      <div class="image-container" onclick="openModal('${item.id}')">
         <img src="${item.img}" class="card-img" onerror="this.src='https://via.placeholder.com/200'">
         <div class="badge-reserve">${item.category} | ${item.qty}</div>
       </div>
