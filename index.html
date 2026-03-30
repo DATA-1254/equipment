@@ -15,10 +15,10 @@
         .category-scroll::-webkit-scrollbar { display: none; }
         .content-area { flex-grow: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; padding-bottom: 100px; /* เว้นที่ให้ปุ่มลอย */ }
         
-        /* ปุ่มสลับมุมมอง (น้ำเงิน) */
+/* 1. ปุ่มสลับมุมมอง (น้ำเงิน) - อยู่บนสุด */
 .fab {
-  position: absolute; /* เปลี่ยนจาก fixed เป็น absolute */
-  bottom: 80px;       /* อยู่เหนือ footer */
+  position: absolute;
+  bottom: 140px; /* ขยับขึ้นไปชั้นบน */
   right: 20px;
   width: 50px;
   height: 50px;
@@ -35,24 +35,44 @@
   border: none;
 }
 
-/* ปุ่มเพิ่มข้อมูล (เขียว) - ย้ายไปอยู่ใต้ปุ่มน้ำเงิน */
+/* 2. ปุ่ม Export PDF (แดง) - อยู่ตรงกลาง */
+.pdf-btn {
+  position: absolute;
+  bottom: 80px; /* อยู่ระหว่างปุ่มน้ำเงินและเขียว */
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  background-color: #ef4444; /* สีแดง PDF */
+  color: white;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  z-index: 100;
+  border: none;
+}
+
+/* 3. ปุ่มเพิ่มข้อมูล (เขียว) - อยู่ล่างสุด */
 .add-float-btn {
-  position: absolute; /* เปลี่ยนจาก fixed เป็น absolute */
-  bottom: 20px;       /* อยู่ใต้ปุ่มน้ำเงิน */
-  right: 20px;        /* ชิดขวาเหมือนกัน */
-  width: 50px;        /* ปรับให้เป็นวงกลมเท่ากัน */
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
   height: 50px;
   background: #27ae60;
   color: white;
-  border: none;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 24px;    /* ขนาดเครื่องหมาย + */
+  font-size: 24px;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   z-index: 100;
+  border: none;
 }
         
         .grid-view { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -88,6 +108,9 @@
             </div>
         </div>
        <button class="fab" id="viewSwitcher"><i class="fas fa-list-ul"></i></button>
+      <button class="pdf-btn" onclick="exportToPDF()" title="ส่งออก PDF">
+        <i class="fas fa-file-pdf"></i>
+    </button>
 <button class="add-float-btn" onclick="goAdd()"><i class="fas fa-plus"></i> </button>
         <footer>ระบบบริหารจัดการอุปกรณ์สำรอง</footer>
     </div>
