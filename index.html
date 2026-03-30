@@ -368,8 +368,13 @@ async function loadData() {
     }));
 
     const categories = ["All", ...new Set(data.map(i => i.category))];
-    renderCategoryButtons(categories);
-    filterData("All");
+renderCategoryButtons(categories);
+// เช็กว่าหมวดหมู่ที่เลือกอยู่เดิม (currentFilter) ยังมีอยู่ในข้อมูลใหม่ไหม
+// ถ้าไม่มี (เช่น เพิ่งลบรายการสุดท้ายของหมวดนั้นไป) ให้กลับไป "All"
+if (!categories.includes(currentFilter)) {
+  currentFilter = "All";
+}
+filterData(currentFilter); // <--- สั่งให้แสดงผลตามหมวดปัจจุบัน
 
   } catch (error) {
     console.error(error);
