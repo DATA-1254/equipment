@@ -285,7 +285,29 @@
     <i class="fas fa-minus"></i>
     นำออก
   </button>
-
+   <!-- 🔴 ลบรายการ -->
+<div id="deleteContainer" class="mt-4 hidden"> 
+  <button id="deleteBtn" onclick="confirmDelete()" 
+    class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-2xl hover:bg-red-100 transition flex items-center justify-center gap-2">
+    <i class="fas fa-trash-alt"></i> ลบรายการนี้ออกจากระบบ
+  </button>
+  <p class="text-[10px] text-red-400 text-center mt-1">* ลบได้เฉพาะเมื่อจำนวนคงเหลือเป็น 0 เท่านั้น</p>
+</div>
+ <!-- 🔴 ปุ่มลบราย -->
+           <div id="deleteConfirmModal" class="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 hidden">
+  <div class="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl text-center animate-fadeIn">
+    <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i class="fas fa-exclamation-triangle text-2xl"></i>
+    </div>
+    <h3 class="text-lg font-bold text-gray-900 mb-2">ยืนยันการลบ?</h3>
+    <p class="text-sm text-gray-500 mb-6">คุณกำลังจะลบรายการ <br><span id="deleteItemName" class="font-bold text-gray-800"></span><br> ข้อมูลนี้จะหายไปจากระบบทันที</p>
+    
+    <div class="flex gap-3">
+      <button onclick="closeDeleteModal()" class="flex-1 py-3 self-center text-gray-500 font-medium">ยกเลิก</button>
+      <button id="btnRealDelete" onclick="executeDelete()" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-200">ลบเลย</button>
+    </div>
+  </div>
+</div>
   <!-- 🟢 เพิ่มเข้า -->
   <button onclick="addStock()" 
     class="w-1/2 bg-green-600 text-white font-bold py-4 rounded-2xl shadow-lg">
@@ -420,12 +442,19 @@ let currentItemData = null;
 function openModal(id) {
   console.log("CLICK ID:", id);
   console.log("DATA:", data);
-
   const item = data.find(i => String(i.id) === String(id));
   console.log("FOUND:", item);
-
   if (!item) return;
-
+  // --- ส่วนที่เพิ่มใหม่: เช็กเงื่อนไขการลบ ---
+  const deleteContainer = document.getElementById('deleteContainer');
+  
+  if (item.qty === 0) {
+    // ถ้าของหมด (qty เป็น 0) ให้แสดงส่วนการลบ
+    deleteContainer.classList.remove('hidden');
+  } else {
+    // ถ้ายังมีของเหลือ ให้ซ่อนส่วนการลบไว้
+    deleteContainer.classList.add('hidden');
+  }
   currentItemData = item;
   currentQty = 1;
   
@@ -514,7 +543,52 @@ async function addStock() {
   closeModal();
   loadData();
 }
+// ================== 🗑️ ลบรายการ (สำหรับ GitHub Pages) ==================
+// --- ฟังก์ชันเปิด-ปิด Modal สวยๆ ---
+function confirmDelete() {
+  if (!currentItemData) return;
+  document.getElementById('deleteItemName').innerText = currentItemData.title;
+  document.getElementById('deleteConfirmModal').classList.remove('hidden');
+}
 
+function closeDeleteModal() {
+  document.getElementById('deleteConfirmModal').classList.add('hidden');
+}
+
+// --- ฟังก์ชันสั่งลบจริงผ่าน fetch ---
+async function executeDelete() {
+  const btn = document.getElementById('btnRealDelete');
+  const originalText = btn.innerText;
+  
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i>';
+
+  try {
+    // ส่ง Request ไปที่ Google Script (API_URL)
+    const targetUrl = `${API_URL}?action=delete&id=${currentItemData.id}`;
+    
+    const response = await fetch(targetUrl);
+    const result = await response.text();
+
+    if (result.includes("Success")) {
+      showToast("ลบรายการเรียบร้อยแล้ว");
+      closeDeleteModal(); // ปิด Modal ยืนยัน
+      closeModal();       // ปิด Modal รายละเอียดอุปกรณ์
+      loadData();         // รีโหลดหน้าเว็บ
+    } else {
+      // ถ้า Server ตอบกลับมาแต่ไม่ใช่ Success (เช่น Not Found)
+      throw new Error("Server ตอบกลับว่า: " + result);
+    }
+
+  } catch (err) {
+    // แสดง Error ที่เกิดขึ้นจริงให้ผู้ใช้เห็น
+    alert("❌ ลบไม่ได้เพราะ: " + err.message + "\n\nตรวจสอบว่าคุณได้ Update Deployment ใน Google Script หรือยัง?");
+    console.error("Delete Error:", err);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = originalText;
+  }
+}
 // ================== TOAST ==================
 function showToast(msg) {
   const toast = document.getElementById("toast");
