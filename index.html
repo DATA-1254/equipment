@@ -297,6 +297,7 @@
     </div>    
 <!---->    
 <script>
+  
 let data = [];
 let currentFilter = "All";
 let currentView = 'grid'; 
@@ -307,7 +308,19 @@ const categoryBar = document.getElementById('categoryBar');
 const switcherBtn = document.getElementById('viewSwitcher');
 
 const API_URL = "https://script.google.com/macros/s/AKfycbxK_M2tVN3DiW8sBbPatkfFpq-lRkpZ8SSV_QGJirzApkZgofB8Flj0XzV0GDdiY4rwvQ/exec";
-
+// ฟังก์ชันสำหรับแปลงลิงก์ Google Drive ให้แสดงผลได้แน่นอน
+function getDriveImageUrl(url) {
+  if (!url || url.includes('placehold.co')) return url;
+  
+  // ค้นหา File ID จาก URL รูปแบบต่างๆ ของ Google Drive
+  const match = url.match(/[-\w]{25,}/);
+  if (match && url.includes('drive.google.com')) {
+    const fileId = match[0];
+    // ใช้รูปแบบ thumbnail จะโหลดเร็วและไม่ติดปัญหาความปลอดภัย (sz=w1000 คือขนาดความกว้าง)
+    return `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`;
+  }
+  return url;
+}
 // ================== โหลดข้อมูล ==================
 async function loadData() {
   try {
@@ -376,7 +389,7 @@ function filterData(selectedCat) {
 
     card.innerHTML = `
       <div class="image-container" onclick="openModal('${item.id}')">
-        <img src="${item.img}" 
+        <img src="${getDriveImageUrl(item.img)}" 
      class="card-img"
      onerror="this.onerror=null;this.src='https://placehold.co/200x150?text=No+Image'">
         <div class="badge-reserve">${item.category} | ${item.qty}</div>
@@ -423,12 +436,12 @@ modal.classList.add('opacity-100');
   
   document.getElementById('orderQty').innerText = currentQty;
   document.getElementById('stockQty').innerText = item.qty;
-  document.getElementById('modalImg').src = item.img;
+  document.getElementById('modalImg').src = getDriveImageUrl(item.img);
   document.getElementById('modalTitle').innerText = item.title;
   document.getElementById('modalDesc').innerHTML = (item.desc || "").replace(/\n/g, '<br>');
 
   const img = document.getElementById('modalImg');
-img.src = item.img;
+img.src = getDriveImageUrl(item.img);
 img.onerror = () => {
   img.src = 'https://placehold.co/400x300?text=No+Image';
 };
@@ -518,7 +531,8 @@ function showToast(msg) {
 
 // ================== ไปหน้าเพิ่ม ==================
 function goAdd() {
-  window.location.href = API_URL + "?page=form";
+  // ใช้ window.open แบบ _top เพื่อให้หลุดออกจาก iframe ของ Google Script
+  window.open(API_URL + "?page=form", "_top");
 }
 
 // ================== START ==================
