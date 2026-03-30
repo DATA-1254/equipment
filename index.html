@@ -296,166 +296,146 @@
       </div>
     </div>    
 <!---->    
-    
-    <script>
-      let data = [];
-      let currentFilter = "All";
-      let currentView = 'grid'; 
-      const container = document.getElementById('content');
-      const categoryBar = document.getElementById('categoryBar');
-      const switcherBtn = document.getElementById('viewSwitcher');
-      const API_URL = "https://script.google.com/macros/s/AKfycbxK_M2tVN3DiW8sBbPatkfFpq-lRkpZ8SSV_QGJirzApkZgofB8Flj0XzV0GDdiY4rwvQ/exec";
-      
-      // 1. ฟังก์ชันดึงข้อมูลจาก GAS
+<script>
+let data = [];
+let currentFilter = "All";
+let currentView = 'grid'; 
+let currentQty = 1;
+
+const container = document.getElementById('content');
+const categoryBar = document.getElementById('categoryBar');
+const switcherBtn = document.getElementById('viewSwitcher');
+
+const API_URL = "https://script.google.com/macros/s/AKfycbxK_M2tVN3DiW8sBbPatkfFpq-lRkpZ8SSV_QGJirzApkZgofB8Flj0XzV0GDdiY4rwvQ/exec";
+
+// ================== โหลดข้อมูล ==================
 async function loadData() {
   try {
+    container.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center py-20 w-full">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p class="mt-4 text-gray-500 text-sm font-medium">กำลังโหลดข้อมูล...</p>
+      </div>
+    `;
+
     const res = await fetch(API_URL + "?action=getData");
     const json = await res.json();
 
     data = json.map(item => ({
-      title: item.data[0],
-      img: item.data[1],
-      category: item.data[2],
-      qty: Number(item.data[3]) || 0,
-      section: item.data[4],
-      desc: item.data[5],
-      date: item.data[6],
-      id: item.data[7]
+      title: item.name || "-",
+      img: item.img || "https://via.placeholder.com/200",
+      category: item.category || "อื่นๆ",
+      qty: Number(item.qty) || 0,
+      section: item.section || "",
+      desc: item.remark || "",
+      date: item.date || "",
+      id: item.id
     }));
 
-    // ✅ ต้องมีส่วนนี้
-    const categories = ["All", ...new Set(data.map(i => i.category || "อื่นๆ"))];
+    const categories = ["All", ...new Set(data.map(i => i.category))];
     renderCategoryButtons(categories);
     filterData("All");
 
   } catch (error) {
     console.error(error);
-    container.innerHTML = "<p class='text-center p-4'>โหลดข้อมูลไม่สำเร็จ</p>";
+    container.innerHTML = "<p class='text-center p-4 text-red-500'>โหลดข้อมูลไม่สำเร็จ</p>";
   }
 }
 
-      // 2. ฟังก์ชันสร้างปุ่มหมวดหมู่
-      function renderCategoryButtons(categories) {
-        categoryBar.innerHTML = ''; 
-        categories.forEach(cat => {
-          const btn = document.createElement('button');
-          btn.innerText = cat;
-          btn.className = `category-btn ${currentFilter === cat ? 'btn-active' : 'btn-inactive'}`;
-          btn.onclick = () => {
-            currentFilter = cat;
-            renderCategoryButtons(categories); 
-            filterData(cat);
-          };
-          categoryBar.appendChild(btn);
-        });
-      }
+// ================== หมวด ==================
+function renderCategoryButtons(categories) {
+  categoryBar.innerHTML = ''; 
+  categories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.innerText = cat;
+    btn.className = `category-btn ${currentFilter === cat ? 'btn-active' : 'btn-inactive'}`;
+    btn.onclick = () => {
+      currentFilter = cat;
+      renderCategoryButtons(categories); 
+      filterData(cat);
+    };
+    categoryBar.appendChild(btn);
+  });
+}
 
-      // 3. ฟังก์ชันแสดง Card
-      function filterData(selectedCat) {
-        container.innerHTML = ''; 
-        const filtered = selectedCat === "All" ? data : data.filter(item => (item.category || "อื่นๆ") === selectedCat);
+// ================== แสดงข้อมูล ==================
+function filterData(selectedCat) {
+  container.innerHTML = ''; 
+  const filtered = selectedCat === "All" ? data : data.filter(item => item.category === selectedCat);
 
-        // ตรวจสอบว่ามีข้อมูลหรือไม่
-        if (filtered.length === 0) {
-          container.innerHTML = "<p class='col-span-full text-center p-10 text-gray-500'>ไม่พบรายการเมนู</p>";
-          return;
-        }
+  if (filtered.length === 0) {
+    container.innerHTML = "<p class='col-span-full text-center p-10 text-gray-500'>ไม่พบรายการ</p>";
+    return;
+  }
 
-        filtered.forEach((item, index) => { // เพิ่ม index เข้ามา
-          const card = document.createElement('div');
-          card.className = "card bg-white border rounded-lg overflow-hidden shadow-sm animate-fadeIn cursor-pointer hover:shadow-md transition"; 
+  filtered.forEach((item, index) => {
+    const card = document.createElement('div');
+    card.className = "card bg-white border rounded-lg overflow-hidden shadow-sm animate-fadeIn cursor-pointer hover:shadow-md transition";
 
-          // แปลง \n เป็น <br> ใน Card
-          const cardDesc = (item.desc || "").split('\n')[0];
+    const cardDesc = (item.desc || "").split('\n')[0];
 
-          card.innerHTML = `
-            <div class="image-container" onclick="openModal(${index})"> <img src="${item.img}" class="card-img" onerror="this.src='https://via.placeholder.com/200?text=No+Image'">
-              <div class="badge-reserve">${item.category} | ${item.qty}</div>
-            </div>
-            <div class="p-1.5 card-body"> 
-              <h3 class="font-bold text-[11px] truncate title">${item.title}</h3> 
-              <p class="text-[9px] text-gray-600 leading-tight mt-0.5 desc">${cardDesc}</p> 
-            </div>
-          `;
-          container.appendChild(card);
-        });
-      }
+    card.innerHTML = `
+      <div class="image-container" onclick="openModal(${index})">
+        <img src="${item.img}" class="card-img" onerror="this.src='https://via.placeholder.com/200'">
+        <div class="badge-reserve">${item.category} | ${item.qty}</div>
+      </div>
+      <div class="p-1.5">
+        <h3 class="font-bold text-[11px] truncate">${item.title}</h3>
+        <p class="text-[9px] text-gray-600">${cardDesc}</p>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
 
-      // 4. ฟังก์ชันสลับมุมมอง Grid/List
-      switcherBtn.onclick = () => {
-        currentView = currentView === 'grid' ? 'list' : 'grid';
-        container.className = currentView === 'grid' ? 'grid-view' : 'list-view';
-        switcherBtn.innerHTML = currentView === 'grid' ? '<i class="fas fa-list-ul"></i>' : '<i class="fas fa-th-large"></i>';
-      };
+// ================== VIEW ==================
+switcherBtn.onclick = () => {
+  currentView = currentView === 'grid' ? 'list' : 'grid';
+  container.className = currentView === 'grid' ? 'grid-view' : 'list-view';
 
-// *** ส่วนควบคุม Modal (JavaScript) ***
-const modal = document.getElementById('detailModal');
-const modalImg = document.getElementById('modalImg');
-const modalTitle = document.getElementById('modalTitle');
-const modalDesc = document.getElementById('modalDesc');
-      
-// ตัวแปรส่วนกลางสำหรับเก็บจำนวนและข้อมูลไอเทมที่กำลังเปิด
+  switcherBtn.innerHTML =
+    currentView === 'grid'
+      ? '<i class="fas fa-list-ul"></i>'
+      : '<i class="fas fa-th-large"></i>';
+};
+
+// ================== MODAL ==================
 let currentItemData = null;
-      
-function openModal(itemIndex) {
-  // 1. ดึงข้อมูลเฉพาะชุดที่กำลังแสดงผลอยู่บนหน้าจอขณะนั้น (Filtered Data)
-  const filteredData = currentFilter === "All" 
-    ? data 
-    : data.filter(item => item.category === currentFilter);
-  
-  const item = filteredData[itemIndex];
-  if (!item) return; // ป้องกัน Error ถ้าไม่พบข้อมูล
 
-  currentItemData = item; // เก็บข้อมูลไอเทมปัจจุบันไว้ใช้ตอนกดยืนยันสั่งซื้อ
-  
-  // 2. อ้างอิง Element ต่างๆ ใน Modal
-  document.getElementById('stockQty').innerText = item.qty || 0;
-  const modal = document.getElementById('detailModal');
-  const modalImg = document.getElementById('modalImg');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalDesc = document.getElementById('modalDesc');
-  const qtyDisplay = document.getElementById('orderQty');
+function openModal(index) {
+  const filtered = currentFilter === "All" ? data : data.filter(i => i.category === currentFilter);
+  const item = filtered[index];
+  if (!item) return;
+
+  currentItemData = item;
+  currentQty = 1;
+
+  document.getElementById('orderQty').innerText = currentQty;
+  document.getElementById('stockQty').innerText = item.qty;
+  document.getElementById('modalImg').src = item.img;
+  document.getElementById('modalTitle').innerText = item.title;
+  document.getElementById('modalDesc').innerHTML = (item.desc || "").replace(/\n/g, '<br>');
+
+  // 🔥 กันของหมด
   const orderBtn = document.getElementById('orderBtn');
+  if (item.qty === 0) {
+    orderBtn.disabled = true;
+    orderBtn.innerHTML = "❌ ของหมด";
+    orderBtn.classList.add("bg-gray-400");
+  } else {
+    orderBtn.disabled = false;
+    orderBtn.innerHTML = '<i class="fas fa-minus"></i> นำออก';
+    orderBtn.classList.remove("bg-gray-400");
+  }
 
-  // 3. รีเซ็ตและใส่ข้อมูลใหม่ลงไป
-  currentQty = 1; 
-  if (qtyDisplay) qtyDisplay.innerText = currentQty;
-
-  modalImg.src = item.img || 'https://via.placeholder.com/400?text=No+Image';
-  modalTitle.innerText = item.title || 'ไม่มีชื่อเมนู';
-  
-  // แปลง \n ในข้อมูลจาก Sheets ให้เป็นบรรทัดใหม่ <br>
-  const formattedDesc = (item.desc || "").replace(/\n/g, '<br>');
-  modalDesc.innerHTML = formattedDesc;
-  
-if (item.qty === 0) {
-  orderBtn.disabled = true;
-  orderBtn.innerHTML = "❌ ของหมด";
-  orderBtn.classList.add("bg-gray-400");
-  orderBtn.classList.remove("bg-blue-600");
-} else {
-  orderBtn.disabled = false;
-  orderBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> นำออกเลย';
-  orderBtn.classList.remove("bg-gray-400");
-  orderBtn.classList.add("bg-blue-600");
+  document.getElementById('detailModal').classList.remove('hidden');
 }
-  
-  // ใช้ setTimeout เล็กน้อยเพื่อให้ Browser ทันคำนวณการเปลี่ยนแปลง class สำหรับ Animation
-  setTimeout(() => {
-    modal.classList.remove('hidden');
-    modal.classList.remove('opacity-0');
-    const modalContent = modal.querySelector('div');
-    if (modalContent) {
-      modalContent.classList.remove('scale-95');
-      modalContent.classList.add('scale-100');
-    }
-  }, 10);
 
-  // 5. ล็อกการเลื่อนหน้าจอพื้นหลัง
-  document.body.style.overflow = 'hidden';
+function closeModal() {
+  document.getElementById('detailModal').classList.add('hidden');
 }
-      
-// ฟังก์ชันปรับจำนวนสำหรับปุ่ม - และ +
+
+// ================== จำนวน ==================
 function updateQty(amount) {
   currentQty += amount;
 
@@ -467,81 +447,38 @@ function updateQty(amount) {
 
   document.getElementById('orderQty').innerText = currentQty;
 }
-function goAdd() {
-  window.location.href = API_URL + "?page=form";
-}
-   function closeModal() {
-  const modal = document.getElementById('detailModal');
-  const modalContent = modal.querySelector('div');
 
-  modal.classList.add('opacity-0');
-  modalContent.classList.remove('scale-100');
-  modalContent.classList.add('scale-95');
-
-  setTimeout(() => {
-    modal.classList.add('hidden');
-    document.body.style.overflow = 'auto';
-  }, 300);
-}
-// ฟังก์ชันเช็คการคลิกพื้นที่ด้านนอก
-function checkClose(event) {
-  // ถ้าตำแหน่งที่คลิก (event.target) คือตัวพื้นหลัง (detailModal) ให้ปิดทันที
-  if (event.target.id === 'detailModal') {
-    closeModal();
-  }
-}
-      // ฟังก์ชันปิด Popup สรุปรายการ
-async function addStock() {
-  if (!currentItemData) return;
-  try {
-    const url = `${API_URL}?action=addStock&id=${currentItemData.id}&qty=${currentQty}`;
-
-    await fetch(url);
-
-    showToast(`เพิ่มเข้า ${currentQty} ชิ้นเรียบร้อยแล้ว`, "success");
-
-    closeModal();
-    loadData();
-
-  } catch (err) {
-    console.error(err);
-    showToast("เพิ่มไม่สำเร็จ", "error");
-  }
-}
+// ================== 🔴 นำออก ==================
 async function submitOrder() {
   if (!currentItemData) return;
 
   if (currentItemData.qty === 0) {
-    alert("ของหมดแล้ว");
+    alert("ของหมด");
     return;
   }
 
-  if (currentQty > currentItemData.qty) {
-    alert("จำนวนเกินของที่มี");
-    return;
-  }
+  await fetch(`${API_URL}?action=order&id=${currentItemData.id}&qty=${currentQty}`);
 
-  try {
-    const url = `${API_URL}?action=order&id=${currentItemData.id}&qty=${currentQty}`;
-
-    await fetch(url);
-
-    showToast(`นำออก ${currentQty} ชิ้นเรียบร้อยแล้ว`);
-
-    closeModal();
-    loadData();
-  } catch (err) {
-    console.error(err);
-    alert("❌ บันทึกไม่สำเร็จ");
-  }
+  showToast(`นำออก ${currentQty} ชิ้น`);
+  closeModal();
+  loadData();
 }
-      function showToast(message, type = "success") {
+
+// ================== 🟢 เพิ่มเข้า ==================
+async function addStock() {
+  if (!currentItemData) return;
+
+  await fetch(`${API_URL}?action=addStock&id=${currentItemData.id}&qty=${currentQty}`);
+
+  showToast(`เพิ่มเข้า ${currentQty} ชิ้น`);
+  closeModal();
+  loadData();
+}
+
+// ================== TOAST ==================
+function showToast(msg) {
   const toast = document.getElementById("toast");
-
-  toast.innerText = (type === "success" ? "✅ " : "❌ ") + message;
-
-  toast.classList.remove("bg-green-500", "bg-red-500");
-  toast.classList.add(type === "success" ? "bg-green-500" : "bg-red-500");
+  toast.innerText = "✅ " + msg;
 
   toast.classList.remove("opacity-0");
   toast.classList.add("opacity-100");
@@ -551,10 +488,15 @@ async function submitOrder() {
     toast.classList.add("opacity-0");
   }, 2000);
 }
-      // ฟังก์ชันลบรายการออกจากตะกร้า (เผื่อลูกค้าเปลี่ยนใจ)
-      // เริ่มทำงาน
-      loadData();
-    </script>
+
+// ================== ไปหน้าเพิ่ม ==================
+function goAdd() {
+  window.open(API_URL + "?page=form", "_blank");
+}
+
+// ================== START ==================
+loadData();
+</script>
 </div>
   </body>
 </html>
