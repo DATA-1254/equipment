@@ -180,7 +180,17 @@ function getDriveImageUrl(url) {
     }
     return url;
 }
-
+// เพิ่มฟังก์ชันนี้เข้าไปในส่วน <script> ของ index.html
+function exportToPDF() {
+    showToast("กำลังเตรียมเปิดรายงาน PDF...");
+    
+    // เนื่องจากคุณแยกหน้า Index ไว้ที่ GitHub 
+    // แต่หน้า PDF อยู่ที่ Apps Script คุณต้องใช้ API_URL ในการเรียกครับ
+    const pdfUrl = API_URL + "?page=pdf";
+    
+    // เปิดหน้า PDF ใน Tab ใหม่
+    window.open(pdfUrl, "_blank");
+}
 async function loadData() {
     const container = document.getElementById('content');
     try {
