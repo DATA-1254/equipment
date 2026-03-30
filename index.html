@@ -244,7 +244,7 @@
 <footer class="bg-blue-600 text-white text-center">
   ระบบเบิกอุปกรณ์คอม
 </footer>
-    <div id="detailModal" onclick="checkClose(event)" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+    <div id="detailModal" onclick="checkClose(event)" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden  transition-opacity duration-300">
       <div onclick="event.stopPropagation()" class="bg-white rounded-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto shadow-2xl relative transform scale-95 transition-transform duration-300">
 
         <button onclick="closeModal()" class="absolute top-4 right-4 z-10 bg-white/70 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center text-gray-700">
@@ -323,7 +323,7 @@ async function loadData() {
 
     data = json.map(item => ({
       title: item.name || "-",
-      img: item.img || "https://via.placeholder.com/200",
+      img: item.img || "https://placehold.co/200x150?text=No+Image",
       category: item.category || "อื่นๆ",
       qty: Number(item.qty) || 0,
       section: item.section || "",
@@ -376,7 +376,9 @@ function filterData(selectedCat) {
 
     card.innerHTML = `
       <div class="image-container" onclick="openModal('${item.id}')">
-        <img src="${item.img}" class="card-img" onerror="this.src='https://via.placeholder.com/200'">
+        <img src="${item.img}" 
+     class="card-img"
+     onerror="this.onerror=null;this.src='https://placehold.co/200x150?text=No+Image'">
         <div class="badge-reserve">${item.category} | ${item.qty}</div>
       </div>
       <div class="p-1.5">
@@ -402,20 +404,34 @@ switcherBtn.onclick = () => {
 // ================== MODAL ==================
 let currentItemData = null;
 
-function openModal(index) {
-  const filtered = currentFilter === "All" ? data : data.filter(i => i.category === currentFilter);
-  const item = filtered[index];
+function openModal(id) {
+  console.log("CLICK ID:", id);
+  console.log("DATA:", data);
+
+  const item = data.find(i => String(i.id) === String(id));
+  console.log("FOUND:", item);
+
   if (!item) return;
 
   currentItemData = item;
   currentQty = 1;
-
+  
+const modal = document.getElementById('detailModal');
+modal.classList.remove('hidden');
+modal.classList.remove('opacity-0');
+modal.classList.add('opacity-100');
+  
   document.getElementById('orderQty').innerText = currentQty;
   document.getElementById('stockQty').innerText = item.qty;
   document.getElementById('modalImg').src = item.img;
   document.getElementById('modalTitle').innerText = item.title;
   document.getElementById('modalDesc').innerHTML = (item.desc || "").replace(/\n/g, '<br>');
 
+  const img = document.getElementById('modalImg');
+img.src = item.img;
+img.onerror = () => {
+  img.src = 'https://placehold.co/400x300?text=No+Image';
+};
   // 🔥 กันของหมด
   const orderBtn = document.getElementById('orderBtn');
   if (item.qty === 0) {
@@ -430,9 +446,20 @@ function openModal(index) {
 
   document.getElementById('detailModal').classList.remove('hidden');
 }
-
+function checkClose(e) {
+  if (e.target.id === "detailModal") {
+    closeModal();
+  }
+}
 function closeModal() {
-  document.getElementById('detailModal').classList.add('hidden');
+  const modal = document.getElementById('detailModal');
+
+  modal.classList.remove('opacity-100');
+  modal.classList.add('opacity-0');
+
+  setTimeout(() => {
+    modal.classList.add('hidden');
+  }, 300); // รอ animation
 }
 
 // ================== จำนวน ==================
