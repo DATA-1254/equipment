@@ -112,38 +112,38 @@
       .list-view .desc { font-size: 0.875rem; }
 
       .fab {
-        position: absolute;
-        bottom: 45px; 
-        right: 16px;
-        width: 56px;
-        height: 56px;
-        background-color: #2563eb; 
-        color: white;
-        border-radius: 50%;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 24px;
-        z-index: 20;
-        border: none;
-      }
+  position: fixed; /* เปลี่ยนเป็น fixed */
+  bottom: 80px;    /* ขยับขึ้นมาเหนือ footer */
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  background-color: #2563eb; 
+  color: white;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  z-index: 100; /* ให้อยู่เหนือเนื้อหา */
+  border: none;
+}
+
 .add-float-btn {
-  position: fixed;
-  bottom: 25px;
-  left: 25px; /* คนละฝั่งกับ Export PDF */
+  position: fixed; /* เปลี่ยนเป็น fixed */
+  bottom: 80px;
+  left: 20px; 
   background: #27ae60;
   color: white;
   border: none;
-  padding: 14px 18px;
+  padding: 14px 22px;
   border-radius: 50px;
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-  transition: 0.2s;
-  z-index: 9999;
+  z-index: 100;
 }
 
 .add-float-btn:hover {
