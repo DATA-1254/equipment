@@ -283,13 +283,20 @@ function checkClose(e) { if (e.target.id === "detailModal") closeModal(); }
 
 function updateQty(amount) {
     currentQty += amount;
-    if (currentQty < 1) currentQty = 1;
-    if (currentItemData && currentQty > currentItemData.qty && amount > 0) currentQty = currentItemData.qty;
+    if (currentQty < 1) currentQty = 1; // กันไม่ให้ติดลบหรือเป็น 0
+    // ลบบรรทัดที่เช็ค currentQty > currentItemData.qty ออกไปเลย
     document.getElementById('orderQty').innerText = currentQty;
 }
 
 async function submitOrder() {
     if (!currentItemData) return;
+    
+    // เพิ่มการเช็คตรงนี้:
+    if (currentQty > currentItemData.qty) {
+        alert("ไม่สามารถนำออกเกินจำนวนที่มีอยู่ได้! (มีอยู่ " + currentItemData.qty + " ชิ้น)");
+        return;
+    }
+
     showToast("กำลังดำเนินการ...");
     await fetch(`${API_URL}?action=order&id=${currentItemData.id}&qty=${currentQty}`);
     showToast(`นำออก ${currentQty} ชิ้นเรียบร้อย`);
