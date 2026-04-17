@@ -102,7 +102,7 @@
         .image-container { position: relative; width: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; }
         .card-img { width: 100%; height: 100%; object-fit: cover; }
       
-        /* จัดวางตำแหน่งเลขกล่องให้อยู่มุมซ้ายบนของรูป */
+/* จัดวางตำแหน่งเลขกล่องให้อยู่มุมซ้ายบนของรูป */
 .badge-box {
     position: absolute;
     top: 5px;   /* ขยับขึ้นไปอีกนิด */
@@ -141,6 +141,33 @@
         footer { position: absolute; bottom: 0; left: 0; right: 0; background-color: #2563eb; color: white; text-align: center; padding: 10px; font-size: 0.75rem; z-index: 40; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+      /* แก้ไขตัวแจ้งเตือน (Toast) ให้แสดงผลหน้าสุด */
+/* ตัวแจ้งเตือน Toast */
+#toast {
+    position: fixed;
+    top: 20px;                  /* ระยะจากขอบบน */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #064e3b;  /* สีเขียวเข้มแบบในรูป */
+    color: white;
+    padding: 10px 25px;
+    border-radius: 12px;        /* ความมนของขอบ */
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 9999 !important;   /* ให้สูงกว่า Modal ทุกตัว */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;       /* ไม่ให้ขวางการคลิกส่วนอื่น */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 200px;
+}
+
+/* ตั้งค่า Modal ให้ z-index ต่ำกว่า Toast */
+.modal-overlay, #detailModal, #addModal, #deleteConfirmModal {
+    z-index: 1000; 
+}
     </style>
 <body>
     <div class="iphone-15-container">
@@ -372,6 +399,9 @@ async function loadData() {
             desc: item.remark || "",
             id: item.id
         }));
+      data.sort((a, b) => {
+        return String(a.category).localeCompare(String(b.category), undefined, { numeric: true });
+    });
         const categories = ["All", ...new Set(data.map(i => i.category))];
 
         renderCategoryButtons(categories);
@@ -463,24 +493,25 @@ async function saveEdit() {
 
     if (!newName) return alert("กรุณาใส่ชื่ออุปกรณ์");
 
-    showToast("กำลังบันทึกข้อมูล...");
+    // 1. แสดง Toast ค้างไว้ (ใส่ 0 เพื่อไม่ให้หายไปเองจนกว่าจะบันทึกเสร็จ)
+    showToast("กำลังบันทึกข้อมูล...", 0); 
     
     let base64Data = "";
     let fileName = "";
 
-    // แก้ไขจุดนี้: เรียกใช้ resizeImage เหมือนตอนเพิ่มใหม่
-    if (file) {
-        base64Data = await resizeImage(file, 500); // ย่อขนาดรูปที่แก้ไขด้วย
-        fileName = file.name;
-    }
-
     try {
+        if (file) {
+            // ถ้ารูปมีขนาดใหญ่ ขั้นตอนนี้อาจใช้เวลาเล็กน้อย Toast จะช่วยบอก User ว่าระบบกำลังทำงาน
+            base64Data = await resizeImage(file, 500); 
+            fileName = file.name;
+        }
+
         const payload = {
             action: "updateItemFull",
             id: currentItemData.id,
             name: newName,
             assetInfo: newAssetInfo,
-            imageDate: base64Data, // ส่งไฟล์ที่ย่อแล้ว
+            imageDate: base64Data, 
             imageName: fileName
         };
 
@@ -490,15 +521,21 @@ async function saveEdit() {
         });
         
         const resultText = await res.text();
+
         if (resultText.toLowerCase().includes("success")) {
-            showToast("✅ อัปเดตข้อมูลเรียบร้อยแล้ว");
+            // 2. เมื่อสำเร็จ เปลี่ยนข้อความและตั้งเวลาปิด (เช่น 2 วินาที)
+            showToast("✅ อัปเดตข้อมูลเรียบร้อยแล้ว", 2000);
+            
             toggleEditMode(false);
             closeModal();
             loadData(); 
         } else {
+            // หากไม่สำเร็จ ให้ซ่อน Toast ทันทีเพื่อให้ User เห็น Alert ชัดเจน
+            hideToast(); 
             alert("บันทึกไม่สำเร็จ: " + resultText);
         }
     } catch (e) {
+        hideToast();
         alert("เกิดข้อผิดพลาด: " + e.message);
     }
 }
@@ -616,9 +653,12 @@ function hideNewCategoryInput() {
 // 3. ฟังก์ชันดึงเลขกล่องที่มีอยู่มาใส่ในตัวเลือก (เรียกใช้ตอนกดเปิด Modal)
 function updateCategoryDropdown() {
     const select = document.getElementById('addCategorySelect');
-    
-    // เปลี่ยนจาก inventory.map เป็น data.map
-    const categories = [...new Set(data.map(item => item.category))].sort(); 
+    if (!select) return;
+
+    // ดึงเลขกล่องที่ไม่ซ้ำ และเรียงแบบตัวเลข (1, 2, 10)
+    const categories = [...new Set(data.map(item => item.category))].sort((a, b) => {
+        return String(a).localeCompare(String(b), undefined, { numeric: true });
+    });
     
     select.innerHTML = '<option value="">-- เลือกกล่อง --</option>';
     
@@ -626,7 +666,7 @@ function updateCategoryDropdown() {
         if(cat) {
             const option = document.createElement('option');
             option.value = cat;
-            option.textContent = `กล่องหมายเลข: ${cat}`;
+            option.textContent = `กล่องหมายเลข: ${cat}`; // แสดงข้อความใน dropdown
             select.appendChild(option);
         }
     });
@@ -731,11 +771,27 @@ card.innerHTML = `
         container.appendChild(card);
     });
 }
-function showToast(msg) {
+function showToast(msg, duration = 2500) {
     const toast = document.getElementById("toast");
     toast.innerText = msg;
-    toast.classList.replace("opacity-0", "opacity-100");
-    setTimeout(() => toast.classList.replace("opacity-100", "opacity-0"), 2500);
+    
+    // แสดง Toast
+    toast.classList.remove("opacity-0");
+    toast.classList.add("opacity-100");
+
+    // ถ้าส่ง duration เป็น 0 คือให้ค้างไว้ (ใช้ตอนกำลังบันทึก)
+    // แต่ถ้ามี duration ให้ตั้งเวลาปิดอัตโนมัติ
+    if (duration > 0) {
+        setTimeout(() => {
+            toast.classList.replace("opacity-100", "opacity-0");
+        }, duration);
+    }
+}
+
+// ฟังก์ชันสำหรับปิด Toast ด้วยมือ (ใช้ตอนบันทึกเสร็จแล้ว)
+function hideToast() {
+    const toast = document.getElementById("toast");
+    toast.classList.replace("opacity-100", "opacity-0");
 }
 
 document.getElementById('viewSwitcher').onclick = () => {
@@ -786,29 +842,32 @@ function previewAddImage(input) {
 }
 
 async function submitNewItem() {
+    // 1. ดึงค่าตาม ID เดิมในหน้า HTML ของคุณ
     const name = document.getElementById('addName').value;
-    
-    // ดึงค่าหมวดหมู่ (เลขกล่อง)
     const categoryInput = document.getElementById('addCategory').value; 
     const categorySelect = document.getElementById('addCategorySelect').value; 
     const category = categoryInput || categorySelect; 
-
-    // --- จุดที่เพิ่ม: ดึงค่าเลขทรัพย์สิน/แผนก ---
     const assetInfo = document.getElementById('addAssetInfo').value; 
-    // ------------------------------------
-
     const qty = document.getElementById('addQty').value;
     const remark = document.getElementById('addRemark').value;
     const fileInput = document.getElementById('addImgFile');
     const file = fileInput.files[0];
+
+    // ตรวจสอบค่าว่างเบื้องต้น
+    if (!name) return alert("กรุณาใส่ชื่ออุปกรณ์");
+    if (!category) return alert("กรุณาระบุเลขกล่องหรือหมวดหมู่");
+
+    // 2. แสดง Toast ค้างไว้ (หน้าสุด)
+    showToast("กำลังบันทึกข้อมูล...", 0); 
+    
     let base64Data = "";
 
-    if (file) {
-        // ใช้ resizeImage แทนการ readAsDataURL ปกติ
-        base64Data = await resizeImage(file, 500); // ย่อให้กว้างเหลือ 500px
-    }
-
     try {
+        // ย่อรูปภาพ
+        if (file) {
+            base64Data = await resizeImage(file, 500); 
+        }
+
         const payload = {
             action: "addItem", 
             name: name,
@@ -816,7 +875,7 @@ async function submitNewItem() {
             qty: qty,
             remark: remark,
             assetInfo: assetInfo, 
-            imageDate: base64Data, // ส่ง Base64 ที่ย่อแล้วไป
+            imageDate: base64Data, 
             imageName: file ? file.name : ""
         };
 
@@ -827,20 +886,29 @@ async function submitNewItem() {
         
         const resultText = await res.text();
         
-        // ตรวจสอบผลลัพธ์
+        // 3. ตรวจสอบผลลัพธ์
         if (resultText.toLowerCase().includes("success")) {
-            showToast("✅ เพิ่มรายการเรียบร้อยแล้ว");
+            showToast("✅ เพิ่มรายการเรียบร้อยแล้ว", 2500);
+            
+            // ล้างค่าฟอร์ม และปิด Modal
             closeAddModal();
             loadData(); 
+            
+            // ล้างค่าใน Input (Optional)
+            document.getElementById('addName').value = "";
+            document.getElementById('addQty').value = "";
+            document.getElementById('addRemark').value = "";
+            document.getElementById('addImgFile').value = "";
         } else {
+            hideToast(); // ปิด Toast ก่อนโชว์ Alert
             alert("เกิดข้อผิดพลาดจาก Server: " + resultText);
         }
     } catch (e) {
+        hideToast();
         console.error("Fetch Error:", e);
         alert("การเชื่อมต่อขัดข้อง: " + e.message);
     }
 }
-
 // ฟังก์ชันจัดการแถบ Category Scroll (Mouse Wheel & Drag)
 const categoryBarEl = document.getElementById('categoryBar');
 
