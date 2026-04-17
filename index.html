@@ -142,7 +142,6 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
     </style>
-</head>
 <body>
     <div class="iphone-15-container">
         <header class="p-4 bg-blue-600 text-white text-center font-bold text-lg shadow-md relative">
@@ -152,13 +151,12 @@
         <div class="category-scroll" id="categoryBar"></div>
 
         <div class="px-4 py-3 bg-white">
-    <div class="relative flex items-center">
-        <i class="fas fa-search absolute left-4 text-gray-400 text-sm"></i>
-        <input type="text" id="searchInput" placeholder="พิมพ์ชื่ออุปกรณ์เพื่อค้นหา..." 
-            class="w-full bg-gray-100 border border-gray-200 rounded-2xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm"
-        >
-    </div>
-</div>
+            <div class="relative flex items-center">
+                <i class="fas fa-search absolute left-4 text-gray-400 text-sm"></i>
+                <input type="text" id="searchInput" placeholder="พิมพ์ชื่ออุปกรณ์เพื่อค้นหา..." 
+                    class="w-full bg-gray-100 border border-gray-200 rounded-2xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm">
+            </div>
+        </div>
 
         <div class="content-area">
             <div id="content" class="grid-view">
@@ -180,70 +178,66 @@
         ✅ บันทึกข้อมูลเรียบร้อยแล้ว
     </div>
 
-    <div id="detailModal" onclick="checkClose(event)" class="fixed inset-0 bg-black/80 z-[150] flex items-center justify-center p-4 hidden transition-opacity duration-300">
-      
+    <div id="detailModal" onclick="checkClose(event)" class="fixed inset-0 bg-black/80 z-[150] flex items-center justify-center p-4 hidden">
         <div onclick="event.stopPropagation()" class="bg-white rounded-3xl w-full max-w-sm max-h-[90vh] overflow-hidden shadow-2xl relative animate-fadeIn">
             <button onclick="closeModal()" class="absolute top-4 right-4 z-20 bg-white/80 rounded-full w-8 h-8 flex items-center justify-center shadow-md"><i class="fas fa-times"></i></button>
             <img id="modalImg" src="" class="w-full h-60 object-cover">
             <div class="p-6">
-    <div id="viewMode">
-        <h2 id="modalTitle" class="font-bold text-2xl text-gray-900"></h2>
-        <div class="mt-1 flex items-center gap-1 mb-2">
-            <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-lg">
-                <i class="fas fa-box"></i> กล่องหมายเลข: <span id="modalCategory"></span>
-            </span>
-        </div>
-        <div id="modalDesc" class="text-sm text-gray-600 mt-2 mb-4"></div>
-    </div>
+                <div id="viewMode">
+                    <h2 id="modalTitle" class="font-bold text-2xl text-gray-900"></h2>
+                    <div class="mt-1 flex items-center gap-1 mb-2">
+                        <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-lg">
+                            <i class="fas fa-box"></i> กล่องหมายเลข: <span id="modalCategory"></span>
+                        </span>
+                    </div>
+                    <div id="modalDesc" class="text-sm text-gray-600 mt-2 mb-4"></div>
+                </div>
 
-    <div id="editMode" class="hidden animate-fadeIn mb-4">
-        <h3 class="text-orange-600 font-bold mb-3"><i class="fas fa-edit"></i> แก้ไขข้อมูล</h3>
-        
-        <label class="text-[10px] text-gray-400 uppercase font-bold">ชื่ออุปกรณ์</label>
-        <input type="text" id="editNameInput" 
-            class="w-full border-b-2 border-orange-200 py-2 mb-4 outline-none focus:border-orange-500 font-bold text-lg transition-all">
-        
-        <label class="text-[10px] text-gray-400 uppercase font-bold">รูปภาพอุปกรณ์</label>
-<div class="flex items-center gap-2 mb-4 mt-1">
-    <label class="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-600 py-3 rounded-xl cursor-pointer hover:bg-gray-200 transition-all border-2 border-dashed border-gray-300">
-        <i class="fas fa-camera"></i>
-        <span id="fileNameDisplay" class="text-xs font-bold">เลือกรูปใหม่</span>
-        <input type="file" id="editImgFile" accept="image/*" class="hidden" onchange="previewFileName(this)">
-    </label>
-</div>
-        
-        <div class="flex gap-2">
-            <button onclick="saveEdit()" class="flex-1 bg-orange-500 text-white py-2 rounded-xl font-bold shadow-md">บันทึก</button>
-            <button onclick="toggleEditMode(false)" class="flex-1 bg-gray-100 text-gray-500 py-2 rounded-xl font-bold">ยกเลิก</button>
-        </div>
-    </div>
+                <div id="editMode" class="hidden animate-fadeIn mb-4">
+                    <h3 class="text-orange-600 font-bold mb-3"><i class="fas fa-edit"></i> แก้ไขข้อมูล</h3>
+                    <label class="text-[10px] text-gray-400 uppercase font-bold">ชื่ออุปกรณ์</label>
+                    <input type="text" id="editNameInput" class="w-full border-b-2 border-orange-200 py-2 mb-4 outline-none focus:border-orange-500 font-bold text-lg transition-all">
+                    
+                    <label class="text-[10px] text-gray-400 uppercase font-bold">รูปภาพอุปกรณ์</label>
+                    <div class="flex items-center gap-2 mb-4 mt-1">
+                        <label class="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-600 py-3 rounded-xl cursor-pointer hover:bg-gray-200 transition-all border-2 border-dashed border-gray-300">
+                            <i class="fas fa-camera"></i>
+                            <span id="fileNameDisplay" class="text-xs font-bold">เลือกรูปใหม่</span>
+                            <input type="file" id="editImgFile" accept="image/*" class="hidden" onchange="previewFileName(this)">
+                        </label>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="saveEdit()" class="flex-1 bg-orange-500 text-white py-2 rounded-xl font-bold">บันทึก</button>
+                        <button onclick="toggleEditMode(false)" class="flex-1 bg-gray-100 text-gray-500 py-2 rounded-xl">ยกเลิก</button>
+                    </div>
+                </div>
 
-    <div id="stockControl" class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl mb-6">
-        <div>
-            <span class="text-xs text-gray-500 block">คงเหลือ</span>
-            <span id="stockQty" class="text-xl font-bold text-blue-600">0</span> <span class="text-xs text-gray-500">ชิ้น</span>
-        </div>
-        <div class="flex items-center gap-3 bg-white p-1 rounded-xl shadow-sm border border-gray-100">
-            <button onclick="updateQty(-1)" class="w-8 h-8 rounded-lg bg-gray-50 text-blue-600"><i class="fas fa-minus text-xs"></i></button>
-            <span id="orderQty" class="w-8 text-center font-bold">1</span>
-            <button onclick="updateQty(1)" class="w-8 h-8 rounded-lg bg-gray-50 text-blue-600"><i class="fas fa-plus text-xs"></i></button>
-        </div>
-    </div>
+                <div id="stockControl" class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl mb-6">
+                    <div>
+                        <span class="text-xs text-gray-500 block">คงเหลือ</span>
+                        <span id="stockQty" class="text-xl font-bold text-blue-600">0</span> <span class="text-xs text-gray-500">ชิ้น</span>
+                    </div>
+                    <div class="flex items-center gap-3 bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+                        <button onclick="updateQty(-1)" class="w-8 h-8 rounded-lg bg-gray-50 text-blue-600"><i class="fas fa-minus text-xs"></i></button>
+                        <span id="orderQty" class="w-8 text-center font-bold">1</span>
+                        <button onclick="updateQty(1)" class="w-8 h-8 rounded-lg bg-gray-50 text-blue-600"><i class="fas fa-plus text-xs"></i></button>
+                    </div>
+                </div>
 
-    <div id="actionButtons" class="flex gap-3">
-        <button id="orderBtn" onclick="submitOrder()" class="flex-[3] bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg">นำออก</button>
-        <button onclick="addStock()" class="flex-1 bg-green-600 text-white font-bold py-4 rounded-2xl shadow-lg">เพิ่มเข้า</button>
-        <button onclick="toggleEditMode(true)" class="flex-1 bg-gray-100 text-gray-400 py-4 rounded-2xl hover:bg-orange-50 hover:text-orange-500 transition-colors">
-            <i class="fas fa-pen"></i>
-        </button>
-    </div>
+                <div id="actionButtons" class="flex gap-3">
+                    <button id="orderBtn" onclick="submitOrder()" class="flex-[3] bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg">นำออก</button>
+                    <button onclick="addStock()" class="flex-1 bg-green-600 text-white font-bold py-4 rounded-2xl shadow-lg">เพิ่มเข้า</button>
+                    <button onclick="toggleEditMode(true)" class="flex-1 bg-gray-100 text-gray-400 py-4 rounded-2xl hover:bg-orange-50 hover:text-orange-500 transition-colors">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
 
-    <div id="deleteContainer" class="mt-4 hidden border-t pt-4">
-        <button id="deleteBtn" onclick="confirmDelete()" class="w-full text-red-500 font-bold py-2 flex items-center justify-center gap-2"><i class="fas fa-trash-alt"></i> ลบรายการนี้</button>
-    </div>
-</div>
+                <div id="deleteContainer" class="mt-4 hidden border-t pt-4">
+                    <button onclick="confirmDelete()" class="w-full text-red-500 font-bold py-2 flex items-center justify-center gap-2"><i class="fas fa-trash-alt"></i> ลบรายการนี้</button>
+                </div>
             </div>
         </div>
+    </div>
 
     <div id="deleteConfirmModal" class="fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center">
@@ -257,6 +251,77 @@
         </div>
     </div>
 
+   <div id="addModal" onclick="checkCloseAdd(event)" class="fixed inset-0 bg-black/80 z-[150] flex items-center justify-center p-4 hidden">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl w-full max-w-sm max-h-[95vh] overflow-y-auto shadow-2xl relative animate-fadeIn">
+        <header class="p-4 bg-green-600 text-white text-center font-bold sticky top-0 z-10">
+            เพิ่มรายการอุปกรณ์ใหม่
+            <button onclick="closeAddModal()" class="absolute right-4 top-4 text-white/80"><i class="fas fa-times"></i></button>
+        </header>
+        
+        <div class="p-6 space-y-4">
+            <div class="space-y-2">
+                <label class="text-[10px] text-gray-400 uppercase font-bold">รูปภาพอุปกรณ์</label>
+                <div id="addImgPreviewContainer" class="hidden w-full aspect-video rounded-xl overflow-hidden mb-2 border">
+                    <img id="addImgPreview" src="" class="w-full h-full object-cover">
+                </div>
+                <label class="flex items-center justify-center gap-2 bg-gray-100 text-gray-600 py-4 rounded-xl cursor-pointer border-2 border-dashed border-gray-300">
+                    <i class="fas fa-camera text-xl"></i>
+                    <span id="addFileNameDisplay" class="font-bold">เลือกรูปภาพ</span>
+                    <input type="file" id="addImgFile" accept="image/*" class="hidden" onchange="previewAddImage(this)">
+                </label>
+            </div>
+
+            <div>
+                <label class="text-[10px] text-gray-400 uppercase font-bold">ชื่ออุปกรณ์</label>
+                <input type="text" id="addName" placeholder="เช่น สาย LAN 5 เมตร" 
+                    class="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-green-500 font-bold transition-all">
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] text-gray-400 uppercase font-bold">กล่องหมายเลข / หมวดหมู่</label>
+                
+                <div id="selectBoxGroup" class="flex gap-2">
+                    <select id="addCategorySelect" 
+                        class="flex-1 border-b-2 border-gray-100 py-2 outline-none focus:border-green-500 font-bold bg-white">
+                        <option value="">-- เลือกกล่อง --</option>
+                        </select>
+                    <button onclick="showNewCategoryInput()" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-100">
+                        <i class="fas fa-plus"></i> กล่องใหม่
+                    </button>
+                </div>
+
+                <div id="newBoxGroup" class="hidden flex gap-2 animate-fadeIn">
+                    <input type="text" id="addCategory" placeholder="ระบุเลขกล่องใหม่..." 
+                        class="flex-1 border-b-2 border-blue-400 py-2 outline-none font-bold text-blue-600">
+                    <button onclick="hideNewCategoryInput()" class="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-xs font-bold">
+                        เลือกที่มีอยู่
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="flex-1">
+                    <label class="text-[10px] text-gray-400 uppercase font-bold">จำนวนเริ่มต้น</label>
+                    <input type="number" id="addQty" value="1" min="0" class="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-green-500 font-bold">
+                </div>
+            </div>
+          <div>
+    <label class="text-[10px] text-gray-400 uppercase font-bold">แผนก / หมายเลขทรัพย์สิน (คอลัมน์ E)</label>
+    <input type="text" id="addAssetInfo" placeholder="เช่น แผนกDATA / 106995 " 
+        class="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-green-500 font-bold transition-all">
+</div>
+            <div>
+              
+                <label class="text-[10px] text-gray-400 uppercase font-bold">รายละเอียดเพิ่มเติม</label>
+                <textarea id="addRemark" rows="2" class="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-green-500 transition-all text-sm" placeholder="ระบุรายละเอียด..."></textarea>
+            </div>
+
+            <button onclick="submitNewItem()" class="w-full bg-green-600 text-white font-bold py-4 rounded-2xl shadow-lg mt-4 active:scale-95 transition-transform">
+                บันทึกรายการใหม่
+            </button>
+        </div>
+    </div>
+</div>
 <script>
 let data = [];
 let currentFilter = "All";
@@ -264,7 +329,7 @@ let currentView = 'grid';
 let currentQty = 1;
 let currentItemData = null;
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwj8oI8-IS5eOXNSL68bm6JvWllUSi5Q8IrL3P1I1r7qKVdXU4T9C-O347100977KI/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwWj3LYmCkUgUZk9NwZsJJ3A2tuZJjkXT-BN_a12IzHeXWuTFWZ1xbqA-VxkLoGjQNo/exec";
 
 function getDriveImageUrl(url) {
     if (!url || url.includes('placehold.co')) return url;
@@ -295,6 +360,7 @@ async function loadData() {
             img: getDriveImageUrl(item.img),
             category: item.category || "อื่นๆ",
             qty: Number(item.qty) || 0,
+            assetInfo: item.section || "-", // *** เพิ่มบรรทัดนี้: ดึงค่า section จาก GS มาเก็บใน assetInfo
             desc: item.remark || "",
             id: item.id
         }));
@@ -359,6 +425,9 @@ function toggleEditMode(isEdit) {
     if (isEdit) {
         // ดึงชื่อเดิมมาใส่ในช่องกรอกชื่อ
         document.getElementById('editNameInput').value = currentItemData.title;
+      if(document.getElementById('editAssetInfoInput')) {
+        document.getElementById('editAssetInfoInput').value = currentItemData.assetInfo;
+    }
         
         // ส่วนของรูปภาพ: เนื่องจากเป็น <input type="file"> เราไม่สามารถใส่ค่า URL เดิมลงไปได้
         // ให้ลบบรรทัดที่อ้างถึง editImgInput ออก หรือเขียนกันไว้แบบนี้:
@@ -372,7 +441,9 @@ function previewFileName(input) {
 }
 // ฟังก์ชันบันทึกข้อมูลที่แก้ (ชื่อและรูป)
 async function saveEdit() {
+    // 1. ดึงค่าจากช่อง Input ใน Modal แก้ไข
     const newName = document.getElementById('editNameInput').value;
+    const newAssetInfo = document.getElementById('editAssetInfoInput') ? document.getElementById('editAssetInfoInput').value : "";
     const fileInput = document.getElementById('editImgFile');
     const file = fileInput.files[0];
 
@@ -383,7 +454,7 @@ async function saveEdit() {
     let base64Data = "";
     let fileName = "";
 
-    // 1. แปลงไฟล์รูปภาพเป็น Base64 (ถ้ามีการเลือกรูปใหม่)
+    // แปลงไฟล์รูปภาพเป็น Base64 (ถ้ามีการเลือกรูปใหม่)
     if (file) {
         const reader = new FileReader();
         const promise = new Promise((resolve) => {
@@ -395,11 +466,13 @@ async function saveEdit() {
     }
 
     try {
+        // --- แก้ไขจุดนี้: ใช้ตัวแปรที่มีค่าจริง และ action ให้ตรงกับ code.gs ---
         const payload = {
-            action: "updateItemFull",
-            id: currentItemData.id,
-            name: newName,
-            imageDate: base64Data, // ข้อมูล Base64
+            action: "updateItemFull", // ใช้ updateItemFull สำหรับการแก้ไข
+            id: currentItemData.id,   // ใช้ ID จากรายการที่เลือกอยู่
+            name: newName,            // ชื่อใหม่ที่พิมพ์
+            assetInfo: newAssetInfo,  // เลขทรัพย์สินใหม่
+            imageDate: base64Data,    // รูปใหม่ (ถ้ามี)
             imageName: fileName
         };
 
@@ -410,18 +483,12 @@ async function saveEdit() {
         });
         
         const resultText = await res.text();
-        console.log("Server Response:", resultText); // ดูค่าที่ส่งกลับมาใน Console (F12)
+        console.log("Server Response:", resultText);
 
-        // 3. ปรับเงื่อนไขการเช็ค Success ให้รองรับ JSON {"status":"success"}
-        // เราจะเช็คว่ามีคำว่า "success" หรือ "Success" อยู่ในข้อความที่ตอบกลับมาไหม
         if (resultText.toLowerCase().includes("success")) {
             showToast("✅ อัปเดตข้อมูลเรียบร้อยแล้ว");
-            
-            // ปิดโหมดแก้ไขและ Modal
             toggleEditMode(false);
             closeModal();
-            
-            // รีโหลดข้อมูลใหม่ทันทีเพื่อให้หน้าจอแสดงชื่อ/รูปใหม่
             loadData(); 
         } else {
             alert("บันทึกไม่สำเร็จ: " + resultText);
@@ -448,6 +515,9 @@ function openModal(id) {
     document.getElementById('stockQty').innerText = item.qty;
     document.getElementById('modalImg').src = item.img;
     document.getElementById('modalTitle').innerText = item.title;
+      if(document.getElementById('modalAssetInfo')) {
+        document.getElementById('modalAssetInfo').innerText = item.assetInfo;
+    }
     document.getElementById('modalCategory').innerText = item.category;
     document.getElementById('modalDesc').innerHTML = (item.desc || "").replace(/\n/g, '<br>');
 
@@ -502,7 +572,45 @@ async function addStock() {
     closeModal();
     loadData();
 }
+// 1. ฟังก์ชันสลับไปช่องพิมพ์เลขกล่องใหม่
+function showNewCategoryInput() {
+    document.getElementById('selectBoxGroup').classList.add('hidden');
+    document.getElementById('newBoxGroup').classList.remove('hidden');
+    document.getElementById('addCategorySelect').value = ""; // ล้างค่าที่เลือกไว้
+}
 
+// 2. ฟังก์ชันสลับกลับไปเลือกกล่องเดิม
+function hideNewCategoryInput() {
+    document.getElementById('newBoxGroup').classList.add('hidden');
+    document.getElementById('selectBoxGroup').classList.remove('hidden');
+    document.getElementById('addCategory').value = ""; // ล้างค่าที่พิมพ์ไว้
+}
+
+// 3. ฟังก์ชันดึงเลขกล่องที่มีอยู่มาใส่ในตัวเลือก (เรียกใช้ตอนกดเปิด Modal)
+function updateCategoryDropdown() {
+    const select = document.getElementById('addCategorySelect');
+    
+    // เปลี่ยนจาก inventory.map เป็น data.map
+    const categories = [...new Set(data.map(item => item.category))].sort(); 
+    
+    select.innerHTML = '<option value="">-- เลือกกล่อง --</option>';
+    
+    categories.forEach(cat => {
+        if(cat) {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = `กล่องหมายเลข: ${cat}`;
+            select.appendChild(option);
+        }
+    });
+}
+
+
+
+// 5. ปรับปรุงตอนบันทึก (submitNewItem)
+// ในฟังก์ชัน submitNewItem() ให้เช็คค่าแบบนี้:
+// const category = document.getElementById('addCategory').value || document.getElementById('addCategorySelect').value;
+  
 function confirmDelete() {
     document.getElementById('deleteItemName').innerText = currentItemData.title;
     document.getElementById('deleteConfirmModal').classList.remove('hidden');
@@ -619,47 +727,138 @@ document.getElementById('viewSwitcher').onclick = () => {
     filterData(currentFilter); 
 };
 
-function goAdd() { window.open(API_URL + "?page=form", "_top"); }
+// ฟังก์ชันเปิด Modal เพิ่มข้อมูล
+function goAdd() {
+    document.getElementById('addName').value = "";
+    document.getElementById('addCategory').value = "";
+    document.getElementById('addAssetInfo').value = ""; // ล้างค่าแผนก/หมายเลขทรัพย์สิน
+    document.getElementById('addQty').value = "1";
+    document.getElementById('addRemark').value = "";
+    document.getElementById('addImgFile').value = "";
+    document.getElementById('addImgPreviewContainer').classList.add('hidden');
+    document.getElementById('addFileNameDisplay').innerText = "เลือกรูปภาพ";
+    updateCategoryDropdown(); 
+    hideNewCategoryInput();  
+    document.getElementById('addModal').classList.remove('hidden');
+}
 
-loadData();
-  // ฟังก์ชันทำให้แถบเลขกล่องเลื่อนซ้าย-ขวาด้วย Mouse Wheel
-const categoryBar = document.getElementById('categoryBar');
+function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+function checkCloseAdd(e) { if (e.target.id === "addModal") closeAddModal(); }
 
-categoryBar.addEventListener('wheel', (e) => {
-    if (e.deltaY !== 0) {
-        // ป้องกันไม่ให้หน้าเว็บหลักเลื่อนขึ้นลงขณะเลื่อนแถบเมนู
-        e.preventDefault();
+// ดูตัวอย่างรูปก่อนอัปโหลด
+function previewAddImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('addImgPreview').src = e.target.result;
+            document.getElementById('addImgPreviewContainer').classList.remove('hidden');
+            document.getElementById('addFileNameDisplay').innerText = input.files[0].name;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+async function submitNewItem() {
+    const name = document.getElementById('addName').value;
+    
+    // ดึงค่าหมวดหมู่ (เลขกล่อง)
+    const categoryInput = document.getElementById('addCategory').value; 
+    const categorySelect = document.getElementById('addCategorySelect').value; 
+    const category = categoryInput || categorySelect; 
+
+    // --- จุดที่เพิ่ม: ดึงค่าเลขทรัพย์สิน/แผนก ---
+    const assetInfo = document.getElementById('addAssetInfo').value; 
+    // ------------------------------------
+
+    const qty = document.getElementById('addQty').value;
+    const remark = document.getElementById('addRemark').value;
+    const fileInput = document.getElementById('addImgFile');
+    const file = fileInput.files[0];
+
+    if (!name || !category) return alert("กรุณากรอกชื่อและเลือกหมายเลขกล่อง");
+
+    showToast("กำลังบันทึกรายการใหม่...");
+    
+    let base64Data = "";
+    let fileName = "";
+
+    if (file) {
+        const reader = new FileReader();
+        const promise = new Promise((resolve) => {
+            reader.onload = (e) => resolve(e.target.result.split(',')[1]);
+            reader.readAsDataURL(file);
+        });
+        base64Data = await promise;
+        fileName = file.name;
+    }
+
+    try {
+        const payload = {
+            action: "addItem", 
+            name: name,
+            category: category,
+            qty: qty,
+            remark: remark,
+            // --- เพิ่มบรรทัดนี้เพื่อให้ค่าถูกส่งไปที่ Column E ใน Google Sheets ---
+            assetInfo: assetInfo, 
+            // ---------------------------------------------------------
+            imageDate: base64Data, // ตรวจสอบใน code.gs ว่าใช้ตัวสะกดนี้ (imageDate) ตรงกัน
+            imageName: fileName
+        };
+
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
         
-        // สั่งให้แถบเลื่อนไปด้านข้างตามแรงหมุนเม้าส์
-        categoryBar.scrollLeft += e.deltaY;
+        const resultText = await res.text();
+        
+        // ตรวจสอบผลลัพธ์
+        if (resultText.toLowerCase().includes("success")) {
+            showToast("✅ เพิ่มรายการเรียบร้อยแล้ว");
+            closeAddModal();
+            loadData(); 
+        } else {
+            alert("เกิดข้อผิดพลาดจาก Server: " + resultText);
+        }
+    } catch (e) {
+        console.error("Fetch Error:", e);
+        alert("การเชื่อมต่อขัดข้อง: " + e.message);
+    }
+}
+
+// ฟังก์ชันจัดการแถบ Category Scroll (Mouse Wheel & Drag)
+const categoryBarEl = document.getElementById('categoryBar');
+
+categoryBarEl.addEventListener('wheel', (e) => {
+    if (e.deltaY !== 0) {
+        e.preventDefault();
+        categoryBarEl.scrollLeft += e.deltaY;
     }
 }, { passive: false });
-  let isDown = false;
+
+let isDown = false;
 let startX;
 let scrollLeft;
 
-categoryBar.addEventListener('mousedown', (e) => {
+categoryBarEl.addEventListener('mousedown', (e) => {
     isDown = true;
-    categoryBar.classList.add('active');
-    startX = e.pageX - categoryBar.offsetLeft;
-    scrollLeft = categoryBar.scrollLeft;
+    startX = e.pageX - categoryBarEl.offsetLeft;
+    scrollLeft = categoryBarEl.scrollLeft;
 });
 
-categoryBar.addEventListener('mouseleave', () => {
-    isDown = false;
-});
-
-categoryBar.addEventListener('mouseup', () => {
-    isDown = false;
-});
-
-categoryBar.addEventListener('mousemove', (e) => {
+categoryBarEl.addEventListener('mouseleave', () => { isDown = false; });
+categoryBarEl.addEventListener('mouseup', () => { isDown = false; });
+categoryBarEl.addEventListener('mousemove', (e) => {
     if (!isDown) return;
     e.preventDefault();
-    const x = e.pageX - categoryBar.offsetLeft;
-    const walk = (x - startX) * 2; // คูณ 2 เพื่อให้ความเร็วการลากทันมือ
-    categoryBar.scrollLeft = scrollLeft - walk;
+    const x = e.pageX - categoryBarEl.offsetLeft;
+    const walk = (x - startX) * 2;
+    categoryBarEl.scrollLeft = scrollLeft - walk;
 });
+
+// เริ่มโหลดข้อมูลครั้งแรก
+loadData();
 </script>
 </body>
 </html>
