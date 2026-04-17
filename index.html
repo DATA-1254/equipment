@@ -54,7 +54,29 @@
   z-index: 100;
   border: none;
 }
+/* ปรับแต่งช่อง Input ให้ดูเนียนตา */
+#searchInput {
+    -webkit-appearance: none; /* สำหรับ iOS */
+}
 
+/* ปรับระยะห่างระหว่างเลขกล่องกับช่องค้นหา */
+.category-scroll {
+    border-bottom: none; /* ลบเส้นใต้เลขกล่องออก เพราะจะมีช่องค้นหามาคั่นแทน */
+}
+.category-scroll {
+    /* ... โค้ดเดิมของคุณ ... */
+    scroll-behavior: smooth; /* ทำให้เวลาเลื่อนแล้วดูนุ่มนวลขึ้น */
+    cursor: grab; /* เปลี่ยนสัญลักษณ์เม้าส์ให้เป็นรูปมือ (เผื่อคนอยากคลิกค้างแล้วลาก) */
+}
+
+.category-scroll:active {
+    cursor: grabbing; /* ตอนคลิกค้างให้เป็นรูปมือกำ */
+}
+/* ปรับขนาดปุ่มเลขกล่องให้เล็กลงนิดนึงจะได้ไม่เกะกะ */
+.category-btn {
+    padding: 4px 12px;
+    font-size: 12px;
+}
 /* 3. ปุ่มเพิ่มข้อมูล (เขียว) - อยู่ล่างสุด */
 .add-float-btn {
   position: absolute;
@@ -91,14 +113,22 @@
     </style>
 </head>
 <body>
-
     <div class="iphone-15-container">
-        <header class="p-4 bg-blue-600 text-white text-center font-bold text-lg shadow-md">
-            รายการอุปกรณ์สำรองหอ D
+        <header class="p-4 bg-blue-600 text-white text-center font-bold text-lg shadow-md relative">
+            <span id="headerTitle" class="transition-opacity duration-300">รายการอุปกรณ์สำรองหอ D</span>
         </header>
 
         <div class="category-scroll" id="categoryBar"></div>
-        
+
+        <div class="px-4 py-3 bg-white">
+    <div class="relative flex items-center">
+        <i class="fas fa-search absolute left-4 text-gray-400 text-sm"></i>
+        <input type="text" id="searchInput" placeholder="พิมพ์ชื่ออุปกรณ์เพื่อค้นหา..." 
+            class="w-full bg-gray-100 border border-gray-200 rounded-2xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm"
+        >
+    </div>
+</div>
+
         <div class="content-area">
             <div id="content" class="grid-view">
                 <div id="loading" class="col-span-full flex flex-col items-center justify-center py-20 w-full">
@@ -107,13 +137,14 @@
                 </div>
             </div>
         </div>
-       <button class="fab" id="viewSwitcher"><i class="fas fa-list-ul"></i></button>
-      <button class="pdf-btn" onclick="exportToPDF()" title="ส่งออก PDF">
-        <i class="fas fa-file-pdf"></i>
-    </button>
-<button class="add-float-btn" onclick="goAdd()"><i class="fas fa-plus"></i> </button>
+
+        <button class="fab" id="viewSwitcher"><i class="fas fa-list-ul"></i></button>
+        <button class="pdf-btn" onclick="exportToPDF()" title="ส่งออก PDF"><i class="fas fa-file-pdf"></i></button>
+        <button class="add-float-btn" onclick="goAdd()"><i class="fas fa-plus"></i></button>
+        
         <footer>ระบบบริหารจัดการอุปกรณ์สำรอง</footer>
     </div>
+    ```
     
 
     <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-xl shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-[100]">
@@ -126,6 +157,11 @@
             <img id="modalImg" src="" class="w-full h-60 object-cover">
             <div class="p-6">
                 <h2 id="modalTitle" class="font-bold text-2xl text-gray-900"></h2>
+              <div class="mt-1 flex items-center gap-1">
+                <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-lg">
+                    <i class="fas fa-box"></i> กล่องหมายเลข: <span id="modalCategory"></span>
+                </span>
+            </div>
                 <div id="modalDesc" class="text-sm text-gray-600 mt-2 mb-4"></div>
                 <div class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl mb-6">
                     <div>
@@ -259,6 +295,7 @@ function openModal(id) {
     document.getElementById('stockQty').innerText = item.qty;
     document.getElementById('modalImg').src = item.img;
     document.getElementById('modalTitle').innerText = item.title;
+    document.getElementById('modalCategory').innerText = item.category;
     document.getElementById('modalDesc').innerHTML = (item.desc || "").replace(/\n/g, '<br>');
 
     const deleteContainer = document.getElementById('deleteContainer');
@@ -334,7 +371,70 @@ async function executeDelete() {
     } catch (e) { alert("Error: " + e.message); }
     finally { btn.disabled = false; btn.innerText = "ลบเลย"; }
 }
+// 1. ดักจับการพิมพ์ในช่องค้นหา (ปรับให้เรียกใช้ filterData กลางเพื่อความแม่นยำ)
+document.getElementById('searchInput').addEventListener('input', () => {
+    filterData(currentFilter); 
+});
 
+// 2. ปรับปรุงฟังก์ชัน filterData (เพื่อให้กรองทั้ง "คำค้นหา" และ "เลขกล่อง" พร้อมกันเสมอ)
+function filterData(selectedCat) {
+    currentFilter = selectedCat; // เก็บหมวดหมู่ปัจจุบันไว้
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    // กรองข้อมูลโดยเช็คทั้ง หมวดหมู่ และ คำค้นหา
+    const filtered = data.filter(item => {
+        const matchesCat = (selectedCat === "All" || String(item.category) === String(selectedCat));
+        const matchesName = item.title.toLowerCase().includes(searchTerm);
+        return matchesCat && matchesName;
+    });
+
+    renderFilteredItems(filtered);
+}
+
+// 3. ฟังก์ชันแสดงผล (คงเดิม แต่ปรับดีไซน์ตัวหนังสือเลขกล่องให้ชัดขึ้นนิดหน่อย)
+function renderFilteredItems(items) {
+    const container = document.getElementById('content');
+    container.innerHTML = ''; 
+    
+    if (items.length === 0) {
+        container.innerHTML = "<div class='col-span-full text-center py-20 text-gray-400'><i class='fas fa-search mb-2 text-2xl'></i><p>ไม่พบรายการที่ค้นหา</p></div>";
+        return;
+    }
+
+    items.forEach(item => {
+        const card = document.createElement('div');
+        // เพิ่มเงื่อนไขเช็ค View (Grid/List) ให้ทำงานร่วมกันได้
+        card.className = currentView === 'grid' 
+            ? "card bg-white border rounded-xl overflow-hidden shadow-sm animate-fadeIn cursor-pointer"
+            : "card bg-white border rounded-xl overflow-hidden shadow-sm animate-fadeIn cursor-pointer flex p-2 gap-3";
+            
+        card.onclick = () => openModal(item.id);
+        
+        // ปรับ HTML ภายในการ์ดให้รองรับทั้ง Grid และ List
+        if (currentView === 'grid') {
+            card.innerHTML = `
+                <div class="image-container">
+                    <img src="${item.img}" class="card-img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                    <div class="badge-reserve">${item.qty} ชิ้น</div>
+                </div>
+                <div class="p-2">
+                    <h3 class="font-bold text-[10px] truncate text-gray-800">${item.title}</h3>
+                    <p class="text-[9px] text-blue-600 font-semibold mt-0.5"><i class="fas fa-box"></i> กล่อง: ${item.category}</p>
+                </div>
+            `;
+        } else {
+            card.innerHTML = `
+                <img src="${item.img}" class="w-20 h-20 object-cover rounded-lg" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                <div class="flex-1 flex flex-col justify-center">
+                    <h3 class="font-bold text-sm text-gray-800">${item.title}</h3>
+                    <p class="text-xs text-blue-600 font-semibold mt-1"><i class="fas fa-box"></i> กล่อง: ${item.category}</p>
+                    <p class="text-xs text-gray-500 mt-1">คงเหลือ: ${item.qty} ชิ้น</p>
+                </div>
+            `;
+        }
+        container.appendChild(card);
+    });
+}
 function showToast(msg) {
     const toast = document.getElementById("toast");
     toast.innerText = msg;
@@ -350,6 +450,44 @@ document.getElementById('viewSwitcher').onclick = () => {
 function goAdd() { window.open(API_URL + "?page=form", "_top"); }
 
 loadData();
+  // ฟังก์ชันทำให้แถบเลขกล่องเลื่อนซ้าย-ขวาด้วย Mouse Wheel
+const categoryBar = document.getElementById('categoryBar');
+
+categoryBar.addEventListener('wheel', (e) => {
+    if (e.deltaY !== 0) {
+        // ป้องกันไม่ให้หน้าเว็บหลักเลื่อนขึ้นลงขณะเลื่อนแถบเมนู
+        e.preventDefault();
+        
+        // สั่งให้แถบเลื่อนไปด้านข้างตามแรงหมุนเม้าส์
+        categoryBar.scrollLeft += e.deltaY;
+    }
+}, { passive: false });
+  let isDown = false;
+let startX;
+let scrollLeft;
+
+categoryBar.addEventListener('mousedown', (e) => {
+    isDown = true;
+    categoryBar.classList.add('active');
+    startX = e.pageX - categoryBar.offsetLeft;
+    scrollLeft = categoryBar.scrollLeft;
+});
+
+categoryBar.addEventListener('mouseleave', () => {
+    isDown = false;
+});
+
+categoryBar.addEventListener('mouseup', () => {
+    isDown = false;
+});
+
+categoryBar.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - categoryBar.offsetLeft;
+    const walk = (x - startX) * 2; // คูณ 2 เพื่อให้ความเร็วการลากทันมือ
+    categoryBar.scrollLeft = scrollLeft - walk;
+});
 </script>
 </body>
 </html>
