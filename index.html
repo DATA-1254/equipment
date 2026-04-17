@@ -101,7 +101,38 @@
         .list-view { display: grid; grid-template-columns: 1fr; gap: 15px; }
         .image-container { position: relative; width: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; }
         .card-img { width: 100%; height: 100%; object-fit: cover; }
-        .badge-reserve { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: white; font-size: 9px; padding: 2px; text-align: center; }
+      
+        /* จัดวางตำแหน่งเลขกล่องให้อยู่มุมซ้ายบนของรูป */
+.badge-box {
+    position: absolute;
+    top: 5px;   /* ขยับขึ้นไปอีกนิด */
+    left: 5px;  /* ขยับไปทางซ้ายอีกหน่อย */
+    background: rgba(37, 99, 235, 0.85); /* จางลงนิดนึงเพื่อให้เห็นรูปข้างหลัง */
+    color: white;
+    font-size: 8px; /* ปรับขนาดตัวอักษรให้เล็กลงหน่อยสำหรับจอ 3 คอลัมน์ */
+    font-weight: bold;
+    padding: 2px 6px; 
+    border-radius: 4px; /* มนน้อยลงหน่อยให้ดูคม */
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* ปรับ CSS ของ badge-reserve (คงเหลือ) ให้ดูสมดุลขึ้น */
+.badge-reserve {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.7); /* สีดำโปร่งแสง */
+    color: white;
+    font-size: 9px;
+    padding: 4px;
+    text-align: center;
+    font-weight: bold;
+}
         
         .category-btn { padding: 6px 15px; border-radius: 50px; font-size: 13px; transition: all 0.2s; border: 1px solid #e5e7eb; } 
         .btn-active { background-color: #2563eb; color: white; border-color: #2563eb; font-weight: bold; }
@@ -144,7 +175,6 @@
         
         <footer>ระบบบริหารจัดการอุปกรณ์สำรอง</footer>
     </div>
-
 
     <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-xl shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-[100]">
         ✅ บันทึกข้อมูลเรียบร้อยแล้ว
@@ -412,24 +442,32 @@ function renderFilteredItems(items) {
         // ปรับ HTML ภายในการ์ดให้รองรับทั้ง Grid และ List
         if (currentView === 'grid') {
             card.innerHTML = `
-                <div class="image-container">
-                    <img src="${item.img}" class="card-img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
-                    <div class="badge-reserve">${item.qty} ชิ้น</div>
-                </div>
-                <div class="p-2">
-                    <h3 class="font-bold text-[10px] truncate text-gray-800">${item.title}</h3>
-                    <p class="text-[9px] text-blue-600 font-semibold mt-0.5"><i class="fas fa-box"></i> กล่อง: ${item.category}</p>
-                </div>
-            `;
+    <div class="image-container">
+        <div class="badge-box">
+            <i class="fas fa-box"></i> ${item.category}
+        </div>
+        
+        <img src="${item.img}" class="card-img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+        <div class="badge-reserve">${item.qty} ชิ้น</div>
+    </div>
+    <div class="p-2 text-center">
+        <h3 class="font-bold text-[10px] truncate text-gray-800">${item.title}</h3>
+    </div>
+`;
         } else {
-            card.innerHTML = `
-                <img src="${item.img}" class="w-20 h-20 object-cover rounded-lg" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
-                <div class="flex-1 flex flex-col justify-center">
-                    <h3 class="font-bold text-sm text-gray-800">${item.title}</h3>
-                    <p class="text-xs text-blue-600 font-semibold mt-1"><i class="fas fa-box"></i> กล่อง: ${item.category}</p>
-                    <p class="text-xs text-gray-500 mt-1">คงเหลือ: ${item.qty} ชิ้น</p>
-                </div>
-            `;
+card.innerHTML = `
+    <div class="image-container w-20 h-20 flex-shrink-0">
+        <div class="badge-box">
+            <i class="fas fa-box"></i> ${item.category}
+        </div>
+        <img src="${item.img}" class="w-full h-full object-cover rounded-lg" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+    </div>
+    
+    <div class="flex-1 flex flex-col justify-center">
+        <h3 class="font-bold text-sm text-gray-800">${item.title}</h3>
+        <p class="text-xs text-gray-500 mt-1">คงเหลือ: ${item.qty} ชิ้น</p>
+    </div>
+`;
         }
         container.appendChild(card);
     });
