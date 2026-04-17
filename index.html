@@ -329,7 +329,7 @@ let currentView = 'grid';
 let currentQty = 1;
 let currentItemData = null;
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwG2Hf7DfLwq-0HQ1x7-0tFPe5Aj8XLEkf-UsVYDt8N7elm7UNN3La3BnXD6dqooWob/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzsDihO9oQDshyat1I6CwWcDQ4Szk1yH5OV1EDOaJwwPD99_fC1G6cmI1A7AkJGw3JL/exec";
 
 function getDriveImageUrl(url) {
     if (!url || url.includes('placehold.co')) return url;
@@ -350,6 +350,13 @@ function exportToPDF() {
     // เปิดหน้า PDF ใน Tab ใหม่
     window.open(pdfUrl, "_blank");
 }
+// 1. ฟังก์ชันนี้อาจจะไม่จำเป็นต้องใช้ตรวจสอบ Drive แล้ว แต่แก้ให้รองรับ Base64 แทน
+function getImageUrl(url) {
+    if (!url || url.includes('placehold.co')) return "https://placehold.co/200x200?text=No+Image";
+    // ถ้าเป็น Base64 หรือ URL ปกติ ก็ให้ส่งค่ากลับไปได้เลย
+    return url;
+}
+
 async function loadData() {
     const container = document.getElementById('content');
     try {
@@ -357,22 +364,30 @@ async function loadData() {
         const json = await res.json();
         data = json.map(item => ({
             title: item.name || "-",
-            img: getDriveImageUrl(item.img),
+            // เปลี่ยนจาก getDriveImageUrl เป็น getImageUrl
+            img: getImageUrl(item.img), 
             category: item.category || "อื่นๆ",
             qty: Number(item.qty) || 0,
-            assetInfo: item.section || "-", // *** เพิ่มบรรทัดนี้: ดึงค่า section จาก GS มาเก็บใน assetInfo
+            assetInfo: item.section || "-", 
             desc: item.remark || "",
             id: item.id
         }));
-
         const categories = ["All", ...new Set(data.map(i => i.category))];
+
         renderCategoryButtons(categories);
+
         if (!categories.includes(currentFilter)) currentFilter = "All";
+
         filterData(currentFilter);
+
     } catch (error) {
+
         container.innerHTML = "<p class='text-center p-10 text-red-500'>โหลดข้อมูลไม่สำเร็จ</p>";
+
     }
+
 }
+
 function openEditMode() {
     if (!currentItemData) return;
     
@@ -441,7 +456,6 @@ function previewFileName(input) {
 }
 // ฟังก์ชันบันทึกข้อมูลที่แก้ (ชื่อและรูป)
 async function saveEdit() {
-    // 1. ดึงค่าจากช่อง Input ใน Modal แก้ไข
     const newName = document.getElementById('editNameInput').value;
     const newAssetInfo = document.getElementById('editAssetInfoInput') ? document.getElementById('editAssetInfoInput').value : "";
     const fileInput = document.getElementById('editImgFile');
@@ -454,37 +468,28 @@ async function saveEdit() {
     let base64Data = "";
     let fileName = "";
 
-    // แปลงไฟล์รูปภาพเป็น Base64 (ถ้ามีการเลือกรูปใหม่)
+    // แก้ไขจุดนี้: เรียกใช้ resizeImage เหมือนตอนเพิ่มใหม่
     if (file) {
-        const reader = new FileReader();
-        const promise = new Promise((resolve) => {
-            reader.onload = (e) => resolve(e.target.result.split(',')[1]);
-            reader.readAsDataURL(file);
-        });
-        base64Data = await promise;
+        base64Data = await resizeImage(file, 500); // ย่อขนาดรูปที่แก้ไขด้วย
         fileName = file.name;
     }
 
     try {
-        // --- แก้ไขจุดนี้: ใช้ตัวแปรที่มีค่าจริง และ action ให้ตรงกับ code.gs ---
         const payload = {
-            action: "updateItemFull", // ใช้ updateItemFull สำหรับการแก้ไข
-            id: currentItemData.id,   // ใช้ ID จากรายการที่เลือกอยู่
-            name: newName,            // ชื่อใหม่ที่พิมพ์
-            assetInfo: newAssetInfo,  // เลขทรัพย์สินใหม่
-            imageDate: base64Data,    // รูปใหม่ (ถ้ามี)
+            action: "updateItemFull",
+            id: currentItemData.id,
+            name: newName,
+            assetInfo: newAssetInfo,
+            imageDate: base64Data, // ส่งไฟล์ที่ย่อแล้ว
             imageName: fileName
         };
 
-        // 2. ส่งข้อมูลแบบ POST
         const res = await fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify(payload)
         });
         
         const resultText = await res.text();
-        console.log("Server Response:", resultText);
-
         if (resultText.toLowerCase().includes("success")) {
             showToast("✅ อัปเดตข้อมูลเรียบร้อยแล้ว");
             toggleEditMode(false);
@@ -494,11 +499,33 @@ async function saveEdit() {
             alert("บันทึกไม่สำเร็จ: " + resultText);
         }
     } catch (e) {
-        console.error(e);
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + e.message);
+        alert("เกิดข้อผิดพลาด: " + e.message);
     }
 }
+// ฟังก์ชันช่วยลดขนาดรูปภาพก่อนส่ง
+function resizeImage(file, maxWidth = 600) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const scaleSize = maxWidth / img.width;
+                canvas.width = maxWidth;
+                canvas.height = img.height * scaleSize;
 
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                // ส่งค่ากลับเป็น Base64 ที่ตัด Header ออกแล้วตามที่ Apps Script ต้องการ
+                const base64 = canvas.toDataURL('image/jpeg', 0.7); // คุณภาพ 70%
+                resolve(base64.split(',')[1]);
+            };
+        };
+    });
+}
 function openModal(id) {
     const item = data.find(i => String(i.id) === String(id));
     if (!item) return;
@@ -774,22 +801,11 @@ async function submitNewItem() {
     const remark = document.getElementById('addRemark').value;
     const fileInput = document.getElementById('addImgFile');
     const file = fileInput.files[0];
-
-    if (!name || !category) return alert("กรุณากรอกชื่อและเลือกหมายเลขกล่อง");
-
-    showToast("กำลังบันทึกรายการใหม่...");
-    
     let base64Data = "";
-    let fileName = "";
 
     if (file) {
-        const reader = new FileReader();
-        const promise = new Promise((resolve) => {
-            reader.onload = (e) => resolve(e.target.result.split(',')[1]);
-            reader.readAsDataURL(file);
-        });
-        base64Data = await promise;
-        fileName = file.name;
+        // ใช้ resizeImage แทนการ readAsDataURL ปกติ
+        base64Data = await resizeImage(file, 500); // ย่อให้กว้างเหลือ 500px
     }
 
     try {
@@ -799,11 +815,9 @@ async function submitNewItem() {
             category: category,
             qty: qty,
             remark: remark,
-            // --- เพิ่มบรรทัดนี้เพื่อให้ค่าถูกส่งไปที่ Column E ใน Google Sheets ---
             assetInfo: assetInfo, 
-            // ---------------------------------------------------------
-            imageDate: base64Data, // ตรวจสอบใน code.gs ว่าใช้ตัวสะกดนี้ (imageDate) ตรงกัน
-            imageName: fileName
+            imageDate: base64Data, // ส่ง Base64 ที่ย่อแล้วไป
+            imageName: file ? file.name : ""
         };
 
         const res = await fetch(API_URL, {
