@@ -208,7 +208,17 @@
                     <button id="orderBtn" onclick="submitOrder()" class="flex-1 bg-blue-600 text-white font-bold py-4 rounded-2xl">นำออก</button>
                     <button onclick="addStock()" class="flex-1 bg-green-600 text-white font-bold py-4 rounded-2xl">เพิ่มเข้า</button>
                 </div>
+<div class="mt-4 border-t pt-4">
+    <button onclick="openEditMode()" class="w-full bg-orange-100 text-orange-600 font-bold py-3 rounded-2xl flex items-center justify-center gap-2 mb-2">
+        <i class="fas fa-edit"></i> แก้ไขรายละเอียดรายการ
+    </button>
+</div>
 
+<div id="deleteContainer" class="hidden text-center">
+    <button id="deleteBtn" onclick="confirmDelete()" class="w-full text-red-500 font-bold py-2 flex items-center justify-center gap-2">
+        <i class="fas fa-trash-alt"></i> ลบรายการนี้
+    </button>
+</div>
                 <div id="deleteContainer" class="mt-4 hidden border-t pt-4">
                     <button id="deleteBtn" onclick="confirmDelete()" class="w-full text-red-500 font-bold py-2 flex items-center justify-center gap-2"><i class="fas fa-trash-alt"></i> ลบรายการนี้</button>
                 </div>
@@ -278,7 +288,14 @@ async function loadData() {
         container.innerHTML = "<p class='text-center p-10 text-red-500'>โหลดข้อมูลไม่สำเร็จ</p>";
     }
 }
-
+function openEditMode() {
+    if (!currentItemData) return;
+    
+    // ส่งไปที่หน้า Form พร้อมพารามิเตอร์ action=edit และ id
+    // หมายเหตุ: คุณต้องไปปรับที่หน้ากูเกิลฟอร์ม/สคริปต์ปลายทางให้รองรับโหมดแก้ไขด้วยนะครับ
+    const editUrl = `${API_URL}?page=form&action=edit&id=${currentItemData.id}`;
+    window.open(editUrl, "_top");
+}
 function renderCategoryButtons(categories) {
     const categoryBar = document.getElementById('categoryBar');
     categoryBar.innerHTML = ''; 
